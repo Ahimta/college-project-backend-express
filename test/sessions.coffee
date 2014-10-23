@@ -1,5 +1,3 @@
-process.env.NODE_ENV = 'test'
-
 mongoose = require('mongoose')
 expect   = require('chai').expect
 _        = require('lodash')

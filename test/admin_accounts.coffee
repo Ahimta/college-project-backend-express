@@ -2,7 +2,7 @@ restrictedCrud = require('./shared_specs/restricted_crud')
 specHelpers    = require('./support/spec_helpers')
 simpleCrud     = require('./shared_specs/simple_crud')
 serializer     = require('../app/serializers').adminAccount
-factories      = require('./resources/admin_accounts')
+factories      = require('./resources/factories/admin_accounts')
 app            = require('../app')
 
 RecruiterAccount = require('mongoose').model('RecruiterAccount')
@@ -46,6 +46,7 @@ describe resource, ->
     describe 'As admin', ->
 
       specHelpers.login(AdminAccount, 'admin', account)
+      # specHelpers.createAdmin(account)
         .get('access_token')
         .then (accessToken) ->
           simpleCrud(app, resource, AdminAccount, factories, accessToken, serializer)

@@ -1,11 +1,14 @@
-require('../../app')
+app = require('../../app')
 
 expect = require('chai').expect
 _      = require('lodash')
 Q      = require('q')
 
-AccessToken = require('../../app/models/access_token')
-security    = require('../../app/utils/security')
+AdminAccount = require('../../app/models/admin_account')
+AccessToken  = require('../../app/models/access_token')
+security     = require('../../app/utils/security')
+
+agent = require('supertest')(app)
 
 module.exports =
   expectCbs:
@@ -36,3 +39,27 @@ module.exports =
           user_id: result.accountId
 
         AccessToken.create(record)
+
+  createAdmin: (account) ->
+    @login(AdminAccount, 'admin', username: 'uuuu0', password: 'passwd')
+      .then (tokenRecord) ->
+        Q.Promise (resolve, reject, notify) ->
+          agent
+            .post("/api/v0/admin_accounts")
+            .set('X-Access-Token', tokenRecord.access_token)
+            .send(admin_account: account)
+            .end (err, res) ->
+              if err then reject(err)
+              else resolve(adminAccount: res.body.admin_account, tokenRecord: tokenRecord)
+      .then (result) ->
+        Q.Promise (resolve, reject, notify) ->
+          agent
+            .post('/api/v0/sessions')
+            .set('X-Access-Token', result.accessToken)
+            .send
+              username: result.adminAccount.username
+              password: result.adminAccount.password
+              role: 'admin'
+            .end (err, res) ->
+              if err then reject(err)
+              else resolve(res.body.access_token)

@@ -2,7 +2,7 @@ restrictedCrud = require('./shared_specs/restricted_crud')
 specHelpers    = require('./support/spec_helpers')
 simpleCrud     = require('./shared_specs/simple_crud')
 serializer     = require('../app/serializers').recruiterAccount
-factories      = require('./resources/recruiter_accounts')
+factories      = require('./resources/factories/recruiter_accounts')
 app            = require('../app')
 
 RecruiterAccount = require('mongoose').model('RecruiterAccount')

@@ -1,10 +1,8 @@
-process.env.NODE_ENV = 'test'
-
 restrictedCrudSpecs = require('./shared_specs/restricted_crud')
 simpleCrudSpecs     = require('./shared_specs/simple_crud')
 specHelpers         = require('./support/spec_helpers')
 serializer          = require('../app/serializers').jobRequest
-factories           = require('./resources/job_requests')
+factories           = require('./resources/factories/job_requests')
 app                 = require('../app')
 
 RecruiterAccount = require('mongoose').model('RecruiterAccount')

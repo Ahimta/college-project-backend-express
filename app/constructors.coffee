@@ -3,7 +3,9 @@ _        = require('lodash')
 
 accountConstrouctor = (account) ->
   security.hash(account.password).then (passwordHash) ->
-    _.merge(_.clone(account), password: passwordHash)
+    x = _.merge(_.clone(account), password: passwordHash)
+    console.log x
+    x
 
 module.exports =
   recruiterAccount: accountConstrouctor

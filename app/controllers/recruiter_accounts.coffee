@@ -5,8 +5,8 @@ accountValidator = require('./concerns/middleware/validators').accountValidator
 assertAdmin      = require('./concerns/middleware/authentication').assertAdmin
 simpleCrud       = require('./concerns/shared_controllers/simple_crud')
 
-constructor = require('../constructors').adminAccount
-serializer  = require('../serializers').adminAccount
+constructor = require('../constructors').recruiterAccount
+serializer  = require('../serializers').recruiterAccount
 
 module.exports = (app) ->
   app.use('/api/v0/recruiter_accounts', router)
