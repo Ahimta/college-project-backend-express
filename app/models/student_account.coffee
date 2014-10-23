@@ -1,11 +1,17 @@
-Schema = require('mongoose').Schema
+mongoose = require('mongoose')
+plugins  = require('./concerns/plugins')
 
-models_utils = require('../utils/models')
-
-schema =
+schema = new mongoose.Schema
   collegial_number: {type: String, unique: true}
   specialization: String
-  teacher_id: {type: Schema.Types.ObjectId, ref: 'TeacherAccount'}
-  courses_ids: {type: [Schema.Types.ObjectId], default: [], ref: 'Course'}
+  teacher_id:
+    type: mongoose.Schema.Types.ObjectId
+    ref: 'TeacherAccount'
+  courses_ids:
+    type: [mongoose.Schema.Types.ObjectId]
+    ref: 'Course'
+    default: []
 
-models_utils.makeAccountableModel('StudentAccount', schema)
+schema.plugin(plugins.accountable)
+
+module.exports = mongoose.model('StudentAccount', schema)

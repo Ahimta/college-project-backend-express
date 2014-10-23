@@ -3,102 +3,61 @@ _         = require('lodash')
 
 expect = require('chai').expect
 
+controllersUtils = require('../../app/utils/controllers')
+specHelpers      = require('../support/spec_helpers')
+
 expectedContentType = 'application/json; charset=utf-8'
 
-expectCbs =
-  badRequest: (response, invalidRecord) ->
-    expect(response.body).to.have.keys(invalidRecord.errorKeys)
+expectCbs = specHelpers.expectCbs
 
-  notFound: (response) ->
-    expect(response.body).to.have.keys(['message', 'status'])
-    ''
-
-module.exports = (app, resource, model, samples, token=null) ->
+#TODO: try to simplify
+module.exports = (app, resource, model, samples, token=null, serializer=null, docConstructor=null) ->
 
   agent = supertest(app)
-  name  = _.last(resource.split('/'))[0...-1]
+  resourceName  = _.last(resource.split('/'))[0...-1]
 
-  self  = ->
-    module.exports(app, resource, model, samples)
+  self = ->
+    module.exports(app, resource, model, samples, token, serializer, docConstructor)
 
-  getRequestBody = (obj) ->
-    requestBody       = {}
-    requestBody[name] = obj
+  getReqOrResBody = controllersUtils.getResponseBody(resourceName)
 
-    requestBody
-
-  getResponseCollection = (collection) ->
-    responseBody             = {}
-    responseBody[name + 's'] = collection
-
-    responseBody
-
-  hooks =
-    resetCollection: (done) ->
-      model.collection.remove(done)
-
-    expectLessCount: (that, done) ->
-        model.count (err, count) ->
-          expect(count).to.equal(that.count - 1)
-          done()
-
-    expectSameCount: (that, done) ->
-        model.count (err, count) ->
-          expect(count).to.equal(that.count)
-          done()
-
-    assingCount: (that, done) ->
-      model.count (err, count) ->
-        that.count = count
-        done()
-
-    create: (that, done) ->
-      model.create samples.valid[0][name], (err, record) ->
-        if err then throw err
-        else
-          that.record = _.merge(record.toJSON(), _id: record._id.toString())
-          done()
+  hooks = require('../support/hooks')(model, samples.valid[0].form[resourceName], docConstructor)
 
   destroy: ->
     describe "DELETE #{resource}/:id", ->
 
-      before hooks.resetCollection
-
-      before (done) ->
-        hooks.create(@, done)
-
-      before (done) ->
-        hooks.assingCount(@, done)
-
-      before (done) ->
-        hooks.expectSameCount(@, done)
-
-      after hooks.resetCollection
+      before     -> hooks.createRecord(@)
+      before     -> hooks.assingCount(@)
+      beforeEach -> hooks.expectSameCount(@)
 
       describe 'does not exist', ->
-        after (done) ->
-          hooks.expectSameCount(@, done)
+
+        afterEach -> hooks.expectSameCount(@)
 
         it '', (done) ->
           agent
-            .delete('#{resource}/nonesense')
+            .delete("#{resource}/nonesense")
+            .set('X-Access-Token', token)
             .expect('Content-Type', expectedContentType)
             .expect(404)
             .expect(expectCbs.notFound)
             .end(done)
 
       describe 'exists', ->
-        after (done) ->
-          hooks.expectLessCount(@, done)
+
+        afterEach -> hooks.expectLessCount(@)
 
         it '', (done) ->
           agent
-            .delete("#{resource}/#{@record._id}")
+            .delete("#{resource}/#{@record.id}")
+            .set('X-Access-Token', token)
             .expect('Content-Type', expectedContentType)
             .expect(200)
             .expect (response) =>
-              expect(response.body[name]).to.eql(@record)
-              ""
+              expected = serializer(@record)
+              actual   = serializer(response.body[resourceName])
+              expect(actual).to.eql(expected)
+              false
             .end(done)
 
     self()
@@ -106,34 +65,44 @@ module.exports = (app, resource, model, samples, token=null) ->
   create: ->
 
     describe "POST #{resource}", ->
-      before hooks.resetCollection
-      after  hooks.resetCollection
+
+      before     -> hooks.assingCount(@)
+      beforeEach -> hooks.expectSameCount(@)
 
       describe 'invalid', ->
+
+        afterEach -> hooks.expectSameCount(@)
+
         _.forEach samples.invalid, (invalidRecord, i) ->
           it i, (done) ->
             agent
               .post(resource)
-              .send(getRequestBody(invalidRecord[name]))
+              .set('X-Access-Token', token)
+              .send(invalidRecord.form)
               .expect('Content-Type', expectedContentType)
               .expect(400)
               .expect (response) ->
                 expectCbs.badRequest(response, invalidRecord)
-                ''
+                false
               .end(done)
 
       describe 'valid', ->
+
+        afterEach -> hooks.expectLessCount(@, -1)
+
         _.forEach samples.valid, (validRecord, i) ->
           it i, (done) ->
             agent
               .post(resource)
-              .send(getRequestBody(validRecord[name]))
+              .set('X-Access-Token', token)
+              .send(validRecord.form)
               .expect('Content-Type', expectedContentType)
-              .expect(200)
+              .expect(201)
               .expect (response) ->
-                actual   = _.omit(response.body[name], '__v', '_id')
-                expect(actual).to.eql(validRecord[name])
-                ""
+                expected = serializer(validRecord.res)
+                actual   = _.omit(serializer(response.body[resourceName]), samples.blacklist)
+                expect(actual).to.eql(expected)
+                false
               .end(done)
 
     self()
@@ -141,11 +110,11 @@ module.exports = (app, resource, model, samples, token=null) ->
   update: ->
     describe 'PUT', ->
 
-      before hooks.resetCollection
-      before (done) ->
-        hooks.create(@, done)
+      before     -> hooks.createRecord(@)
+      before     -> hooks.assingCount(@)
+      beforeEach -> hooks.expectSameCount(@)
 
-      after hooks.resetCollection
+      afterEach  -> hooks.expectSameCount(@)
 
       describe 'invalid', ->
         sample = {'does not exist': samples.invalid, exists: samples.invalid}
@@ -155,40 +124,44 @@ module.exports = (app, resource, model, samples, token=null) ->
               it i, (done) ->
                 agent
                   .put("#{resource}/#{@record._id}")
-                  .send(getRequestBody(record[name]))
+                  .set('X-Access-Token', token)
+                  .send(record.form)
                   .expect('Content-Type', expectedContentType)
                   .expect(400)
                   .expect (response) ->
                     expect(response.body).to.have.keys(record.errorKeys)
-                    ""
+                    false
                   .end(done)
 
 
       describe 'valid', ->
 
         describe 'does not exist', ->
-          _.forEach samples.valid, (record, i) ->
+          _.forEach samples.valid, (validRecord, i) ->
             it i, (done) ->
               agent
                 .put("#{resource}/nonesense")
-                .send(getRequestBody(record[name]))
+                .set('X-Access-Token', token)
+                .send(validRecord.form)
                 .expect('Content-Type', expectedContentType)
                 .expect(404)
                 .expect(expectCbs.notFound)
                 .end(done)
 
         describe 'exists', ->
-          _.forEach samples.valid, (validrecord, i) ->
+          _.forEach samples.valid, (validRecord, i) ->
             it i, (done) ->
               agent
                 .put("#{resource}/#{@record._id}")
-                .send(getRequestBody(validrecord[name]))
+                .set('X-Access-Token', token)
+                .send(validRecord.form)
                 .expect('Content-Type', expectedContentType)
                 .expect(200)
                 .expect (response) ->
-                  actual = _.omit(response.body[name], ['__v', '_id'])
-                  expect(actual).to.eql(validrecord[name])
-                  ""
+                  expected = serializer(validRecord.res)
+                  actual   = _.omit(serializer(response.body[resourceName]), 'id')
+                  expect(actual).to.eql(expected)
+                  false
                 .end(done)
 
     self()
@@ -196,42 +169,37 @@ module.exports = (app, resource, model, samples, token=null) ->
   index: ->
     describe "GET #{resource}", ->
 
-      before hooks.resetCollection
+      before     -> hooks.assingCount(@)
+      beforeEach -> hooks.expectSameCount(@)
 
-      before (done) ->
-        hooks.assingCount(@, done)
+      afterEach -> hooks.expectSameCount(@)
 
-      before (done) ->
-        hooks.expectSameCount(@, done)
-
-      after (done) ->
-        hooks.expectSameCount(@, done)
-
-      after  hooks.resetCollection
-
-      describe 'empty', ->
-        it '', (done) ->
-          agent
-            .get(resource)
-            .expect('Content-Type', expectedContentType)
-            .expect(200)
-            .expect(getResponseCollection([]))
-            .end(done)
+      it '', (done) ->
+        agent
+          .get(resource)
+          .set('X-Access-Token', token)
+          .expect('Content-Type', expectedContentType)
+          .expect(200)
+          .expect (res) =>
+            expect(res.body[resourceName + 's'].length).to.eql(@count)
+            false
+          .end(done)
 
     self()
 
   show: ->
     describe "GET #{resource}", ->
 
-      before hooks.resetCollection
-      before (done) ->
-        hooks.create(@, done)
+      before     -> hooks.createRecord(@)
+      before     -> hooks.assingCount(@)
+      beforeEach -> hooks.expectSameCount(@)
 
-      after hooks.resetCollection
+      afterEach -> hooks.expectSameCount(@)
 
       it 'does not exist', (done) ->
         agent
           .get("#{resource}/nonesense")
+          .set('X-Access-Token', token)
           .expect('Content-Type', expectedContentType)
           .expect(404)
           .expect(expectCbs.notFound)
@@ -240,9 +208,10 @@ module.exports = (app, resource, model, samples, token=null) ->
       it 'exists', (done) ->
         agent
           .get("#{resource}/#{@record._id}")
+          .set('X-Access-Token', token)
           .expect('Content-Type', expectedContentType)
           .expect(200)
           .expect (response) =>
-            expect(response.body[name]).to.eql(@record)
-            ""
+            expect(serializer(response.body[resourceName])).to.eql(serializer(@record))
+            false
           .end(done)

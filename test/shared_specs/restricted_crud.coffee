@@ -1,18 +1,18 @@
 supertest = require('supertest')
-_         = require('lodash')
 
-module.exports = (app, resource, access_token=null) ->
+module.exports = (app, resource, accessToken=null) ->
 
   agent = supertest(app)
 
   self = ->
-    module.exports(app, resource, access_token)
+    module.exports(app, resource, accessToken)
 
   helper = (method, url, description) ->
     ->
       describe description, ->
-        it '', (done) ->
+        it 'should respond with HTTP status 401', (done) ->
           agent[method](url)
+            .set('X-Access-Token', accessToken)
             .expect(message: 'Unauthorized', status: 401)
             .expect(401)
             .end(done)

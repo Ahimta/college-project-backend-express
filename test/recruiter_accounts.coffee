@@ -1,15 +1,15 @@
 restrictedCrud = require('./shared_specs/restricted_crud')
 specHelpers    = require('./support/spec_helpers')
 simpleCrud     = require('./shared_specs/simple_crud')
-serializer     = require('../app/serializers').adminAccount
-factories      = require('./resources/admin_accounts')
+serializer     = require('../app/serializers').recruiterAccount
+factories      = require('./resources/recruiter_accounts')
 app            = require('../app')
 
 RecruiterAccount = require('mongoose').model('RecruiterAccount')
 AdminAccount = require('mongoose').model('AdminAccount')
 agent        = require('supertest')(app)
 
-resource = '/api/v0/admin_accounts'
+resource = '/api/v0/recruiter_accounts'
 
 #TODO: test creating an account through the API and then authenticating with the account
 describe resource, ->
@@ -48,7 +48,7 @@ describe resource, ->
       specHelpers.login(AdminAccount, 'admin', account)
         .get('access_token')
         .then (accessToken) ->
-          simpleCrud(app, resource, AdminAccount, factories, accessToken, serializer)
+          simpleCrud(app, resource, RecruiterAccount, factories, accessToken, serializer)
             .destroy()
             .create()
             .update()

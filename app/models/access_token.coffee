@@ -1,17 +1,15 @@
 mongoose = require('mongoose')
 
-Schema = mongoose.Schema
-
-AccessTokenSchema =
-  access_tokens:
-    type: [{token: String}]
+schema =
+  access_token:
+    type: String
     unique: true
   user_role:
     enum: ['recruiter', 'admin']
     required: true
     type: String
   user_id:
+    type: mongoose.Schema.Types.ObjectId
     required: true
-    type: Schema.Types.ObjectId
 
-mongoose.model('AccessToken', AccessTokenSchema)
+module.exports = mongoose.model('AccessToken', schema)

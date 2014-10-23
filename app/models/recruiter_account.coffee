@@ -1,3 +1,7 @@
-models_utils = require('../utils/models')
+mongoose = require('mongoose')
+plugins  = require('./concerns/plugins')
 
-models_utils.makeAccountableModel('RecruiterAccount')
+schema = new mongoose.Schema()
+  .plugin(plugins.accountable)
+
+module.exports = mongoose.model('RecruiterAccount', schema)
