@@ -55,10 +55,10 @@ module.exports =
         Q.Promise (resolve, reject, notify) ->
           agent
             .post('/api/v0/sessions')
-            .set('X-Access-Token', result.accessToken)
+            .set('X-Access-Token', result.tokenRecord.accessToken)
             .send
-              username: result.adminAccount.username
-              password: result.adminAccount.password
+              username: account.username
+              password: account.password
               role: 'admin'
             .end (err, res) ->
               if err then reject(err)

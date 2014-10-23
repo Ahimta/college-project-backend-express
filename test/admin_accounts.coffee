@@ -46,9 +46,9 @@ describe resource, ->
     describe 'As admin', ->
 
       specHelpers.login(AdminAccount, 'admin', account)
-      # specHelpers.createAdmin(account)
-        .get('access_token')
+        .get ('access_token')
         .then (accessToken) ->
+          console.log accessToken
           simpleCrud(app, resource, AdminAccount, factories, accessToken, serializer)
             .destroy()
             .create()

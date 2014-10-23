@@ -47,7 +47,7 @@ describe resource, ->
       specHelpers.login(AdminAccount, 'admin', account)
         .get('access_token')
         .then (accessToken) ->
-          simpleCrudSpecs(app, JobRequest, factories, accessToken, serializer)
+          simpleCrudSpecs(app, resource, JobRequest, factories, accessToken, serializer)
             .create()
 
           restrictedCrudSpecs(app, resource, accessToken, serializer)
