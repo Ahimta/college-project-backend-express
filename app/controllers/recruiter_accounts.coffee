@@ -1,7 +1,7 @@
 RecruiterAccount = require('mongoose').model('RecruiterAccount')
 router           = require('express').Router()
 
-accountValidator = require('./concerns/middleware/validators').accountValidator
+accountValidator = require('./concerns/middleware/validators').recruiterAccountValidator
 assertAdmin      = require('./concerns/middleware/authentication').assertAdmin
 simpleCrud       = require('./concerns/shared_controllers/simple_crud')
 

@@ -38,6 +38,16 @@ module.exports.accountValidator = [
   validator
 ]
 
+module.exports.recruiterAccountValidator = [
+
+  form(
+    field('recruiter_account.username').required().notEmpty(),
+    field('recruiter_account.password').required().notEmpty(),
+    field('recruiter_account.email').isEmail()
+  ),
+  validator
+]
+
 module.exports.sessionValidator = [
 
   form(
