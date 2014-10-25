@@ -108,7 +108,7 @@ module.exports = (app, resource, model, samples, token=null, serializer=null, do
     self()
 
   update: ->
-    describe 'PUT', ->
+    describe "PUT #{resource}/:id", ->
 
       before     -> hooks.createRecord(@)
       before     -> hooks.assingCount(@)
@@ -212,6 +212,10 @@ module.exports = (app, resource, model, samples, token=null, serializer=null, do
           .expect('Content-Type', expectedContentType)
           .expect(200)
           .expect (response) =>
-            expect(serializer(response.body[resourceName])).to.eql(serializer(@record))
+            expected = serializer(@record)
+            actual   = serializer(response.body[resourceName])
+            expect(actual).to.eql(expected)
             false
           .end(done)
+
+    self()
