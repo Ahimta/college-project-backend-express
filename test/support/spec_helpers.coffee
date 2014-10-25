@@ -1,8 +1,9 @@
-app = require('../../app')
-
 expect = require('chai').expect
+faker  = require('faker')
 _      = require('lodash')
 Q      = require('q')
+
+app = require('../../app')
 
 AdminAccount = require('../../app/models/admin_account')
 AccessToken  = require('../../app/models/access_token')
@@ -26,6 +27,12 @@ module.exports =
       .then (hash) ->
         record = _.merge(_.clone(account), password: hash)
         model.create(record)
+      .fail console.log
+
+
+  generateAccount: ->
+    username: faker.name.findName()
+    password: faker.internet.password()
 
   login: (model, role, account) ->
     @createAccount(model, account).then (createdAccount) ->
@@ -39,9 +46,10 @@ module.exports =
           user_id: result.accountId
 
         AccessToken.create(record)
+      .fail console.log
 
   createAdmin: (account) ->
-    @login(AdminAccount, 'admin', username: 'uuuu0', password: 'passwd')
+    @login(AdminAccount, @generateAccount)
       .then (tokenRecord) ->
         Q.Promise (resolve, reject, notify) ->
           agent
@@ -63,3 +71,4 @@ module.exports =
             .end (err, res) ->
               if err then reject(err)
               else resolve(res.body.access_token)
+      .fail console.log
