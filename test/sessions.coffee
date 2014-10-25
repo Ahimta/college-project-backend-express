@@ -19,13 +19,8 @@ agent    = require('supertest')(app)
 
 describe resource, ->
 
-  account0 =
-    username: 'username0'
-    password: 'password0'
-
-  account1 =
-    username: 'username3'
-    password: 'password3'
+  account0 = specHelpers.generateAccount()
+  account1 = specHelpers.generateAccount()
 
   describe "POST #{resource}", ->
 
@@ -110,7 +105,7 @@ describe resource, ->
 
         describe 'the user deleting his own token', ->
 
-          it '', (done) ->
+          it 'his request to delete his token should be granted', (done) ->
             agent
               .delete("#{resource}/#{@tokenRecord0.id}")
               .set('X-Access-Token', @tokenRecord0.access_token)
@@ -119,7 +114,7 @@ describe resource, ->
 
         describe 'the user trying to delete another user token', ->
 
-          it '', (done) ->
+          it 'his request to delete his token should be granted', (done) ->
             agent
               .delete("#{resource}/#{@tokenRecord1.id}")
               .set('X-Access-Token', @tokenRecord0.access_token)

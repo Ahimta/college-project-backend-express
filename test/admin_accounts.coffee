@@ -26,11 +26,9 @@ describe resource, ->
 
   describe 'Logged in', ->
 
-    account =
-      username: 'username1'
-      password: 'password1'
-
     describe 'As recruiter', ->
+
+      account = specHelpers.generateAccount()
 
       specHelpers.login(RecruiterAccount, 'recruiter', account)
         .get('access_token')
@@ -45,10 +43,11 @@ describe resource, ->
 
     describe 'As admin', ->
 
+      account = specHelpers.generateAccount()
+
       specHelpers.login(AdminAccount, 'admin', account)
         .get ('access_token')
         .then (accessToken) ->
-          console.log accessToken
           simpleCrud(app, resource, AdminAccount, factories, accessToken, serializer)
             .destroy()
             .create()

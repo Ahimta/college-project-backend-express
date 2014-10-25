@@ -1,3 +1,6 @@
+supertest = require('supertest')
+mongoose  = require('mongoose')
+
 restrictedCrud = require('./shared_specs/restricted_crud')
 specHelpers    = require('./support/spec_helpers')
 simpleCrud     = require('./shared_specs/simple_crud')
@@ -5,9 +8,9 @@ serializer     = require('../app/serializers').recruiterAccount
 factories      = require('./resources/factories/recruiter_accounts')
 app            = require('../app')
 
-RecruiterAccount = require('mongoose').model('RecruiterAccount')
-AdminAccount = require('mongoose').model('AdminAccount')
-agent        = require('supertest')(app)
+RecruiterAccount = mongoose.model('RecruiterAccount')
+AdminAccount     = mongoose.model('AdminAccount')
+agent            = supertest(app)
 
 resource = '/api/v0/recruiter_accounts'
 
@@ -26,11 +29,9 @@ describe resource, ->
 
   describe 'Logged in', ->
 
-    account =
-      username: 'username1'
-      password: 'password1'
-
     describe 'As recruiter', ->
+
+      account = specHelpers.generateAccount()
 
       specHelpers.login(RecruiterAccount, 'recruiter', account)
         .get('access_token')
@@ -44,6 +45,8 @@ describe resource, ->
 
 
     describe 'As admin', ->
+
+      account = specHelpers.generateAccount()
 
       specHelpers.login(AdminAccount, 'admin', account)
         .get('access_token')

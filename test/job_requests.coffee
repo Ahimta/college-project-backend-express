@@ -26,11 +26,9 @@ describe resource, ->
 
   describe 'Logged in', ->
 
-    account =
-      username: 'username31'
-      password: 'passwd'
-
     describe 'As recruiter', ->
+
+      account = specHelpers.generateAccount()
 
       specHelpers.login(RecruiterAccount, 'recruiter', account)
         .get('access_token')
@@ -43,6 +41,8 @@ describe resource, ->
             .show()
 
     describe 'As admin', ->
+
+      account = specHelpers.generateAccount()
 
       specHelpers.login(AdminAccount, 'admin', account)
         .get('access_token')
