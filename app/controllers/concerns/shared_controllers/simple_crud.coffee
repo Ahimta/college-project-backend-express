@@ -23,16 +23,16 @@ module.exports = (router, model, resource, serializer, constructor=_.identity) -
       model.findByIdAndRemove req.params.id, (err, record) ->
         if !record then controllersUtils.notFound(res)
         else if err then next(err)
-        else res.send(serializer(getResponseBody(record)))
+        else res.send(getResponseBody(serializer(record)))
 
   create: helper (middleware) ->
     router.post '/', middleware, (req, res, next) ->
 
       Q(constructor(req.body[name]))
-        .then (x) ->
-          model.create(x)
+        .then (constructedDoc) ->
+          model.create(constructedDoc)
         .then (record) ->
-          res.status(201).send(serializer(getResponseBody(record)))
+          res.status(201).send(getResponseBody(serializer(record)))
         .then null, next
 
   update: helper (middleware) ->
@@ -41,7 +41,7 @@ module.exports = (router, model, resource, serializer, constructor=_.identity) -
       model.findByIdAndUpdate req.params.id, req.body[name], (err, record) ->
         if !record then controllersUtils.notFound(res)
         else if err then next(err)
-        else res.send(serializer(getResponseBody(record)))
+        else res.send(getResponseBody(serializer(record)))
 
   index: helper (middleware)->
     router.get '/', middleware, (req, res, next) ->
@@ -57,4 +57,4 @@ module.exports = (router, model, resource, serializer, constructor=_.identity) -
       model.findById req.params.id, (err, record) ->
         if !record then controllersUtils.notFound(res)
         else if err then next(err)
-        else res.send(serializer(getResponseBody(record)))
+        else res.send(getResponseBody(serializer(record)))
