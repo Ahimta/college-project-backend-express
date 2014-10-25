@@ -1,5 +1,3 @@
-_ = require('lodash')
-
 module.exports =
   blacklist: ['id', 'token']
   invalid: [

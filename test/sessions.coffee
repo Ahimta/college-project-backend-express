@@ -7,8 +7,8 @@ security    = require('../app/utils/security')
 app         = require('../app')
 
 RecruiterAccount = mongoose.model('RecruiterAccount')
-AdminAccount = mongoose.model('AdminAccount')
-AccessToken  = mongoose.model('AccessToken')
+AdminAccount     = mongoose.model('AdminAccount')
+AccessToken      = mongoose.model('AccessToken')
 
 accountsModels =
   recruiter: RecruiterAccount
