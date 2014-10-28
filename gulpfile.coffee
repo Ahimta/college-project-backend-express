@@ -6,6 +6,7 @@ gulp          = require('gulp')
 
 globs = [
   'app/**/*.coffee'
+  'db/**/*.coffee'
   '*.{coffee,json,js}'
   'config/*.coffee'
   'test/**/*.coffee'

@@ -1,4 +1,4 @@
-router   = require('express').Router()
+router = require('express').Router()
 
 assertAuthorized = require('./concerns/middleware/authentication').assertAuthorized
 sessionValidator = require('./concerns/middleware/validators').sessionValidator

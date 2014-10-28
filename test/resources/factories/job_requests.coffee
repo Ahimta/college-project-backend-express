@@ -1,5 +1,5 @@
 module.exports =
-  blacklist: ['id', 'token']
+  blacklist: ['id', 'token', 'files']
   invalid: [
     {
       errorKeys: [

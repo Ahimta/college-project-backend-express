@@ -159,7 +159,7 @@ module.exports = (app, resource, model, samples, token=null, serializer=null, do
                 .expect(200)
                 .expect (response) ->
                   expected = serializer(validRecord.res)
-                  actual   = _.omit(serializer(response.body[resourceName]), 'id')
+                  actual   = _.omit(serializer(response.body[resourceName]), samples.blacklist)
                   expect(actual).to.eql(expected)
                   false
                 .end(done)
