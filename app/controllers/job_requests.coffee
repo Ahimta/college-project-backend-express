@@ -1,8 +1,12 @@
+mongoose = require('mongoose')
+express  = require('express')
 Busboy = require('busboy')
+mkdirp = require('mkdirp')
 fs     = require('fs')
+Q      = require('q')
 
-JobRequest = require('mongoose').model('JobRequest')
-router     = require('express').Router()
+JobRequest = mongoose.model('JobRequest')
+router     = express.Router()
 
 jobRequestValidator = require('./concerns/middleware/validators').jobRequestValidator
 controllersUtils    = require('../utils/controllers')
@@ -32,13 +36,22 @@ router.put '/:id/files', (req, res, next) ->
         busboy = new Busboy(headers: req.headers)
 
         busboy.on 'file', (fieldName, file, fileName, encoding, mimeType) ->
-          path = "./public/uploads/#{jobRequestId}/#{fieldName}"
-          file.pipe(fs.createWriteStream(path))
+          folderPath = "./public/uploads/job_requests/#{jobRequestId}"
+
+          Q.nfapply(mkdirp, [folderPath])
+            .then (__) ->
+              filePath = "#{folderPath}/#{fileName}"
+              file.pipe(fs.createWriteStream(filePath))
+            .then null, next
+
           file.on 'end', ->
-            jobRequest.update({$addToSet: {files: fieldName}}).exec()
+            jobRequest.update({$addToSet: {files: fileName}}).exec().then null, next
 
         busboy.on 'finish', ->
-          res.send(job_request: serializer(jobRequest))
+          JobRequest.findById(jobRequestId).exec()
+            .then (newJobRequest) ->
+              res.send(job_request: serializer(newJobRequest))
+            .then null, next
 
         req.pipe(busboy)
       else
@@ -46,20 +59,3 @@ router.put '/:id/files', (req, res, next) ->
     .then null, (err) ->
       if err.name == 'CastError' then controllersUtils.notFound(res)
       else next(err)
-
-router.put '/x/upload', (req, res, next) ->
-  console.log req.headers
-  busboy = new Busboy(headers: req.headers)
-
-  busboy.on 'file', (fieldName, file, fileName, encoding, mimeType) ->
-    console.log fieldName, fileName
-    path = './public/uploads/' + fileName
-    file.pipe(fs.createWriteStream(path))
-
-  busboy.on 'field', (fieldname, val, fieldnameTruncated, valTruncated) ->
-    console.log fieldname, val, fieldnameTruncated, valTruncated
-
-  busboy.on 'finish', ->
-    res.send('Niceeeeeeeeeeeeeeee' + "\n")
-
-  req.pipe(busboy)
