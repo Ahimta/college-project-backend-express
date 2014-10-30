@@ -26,6 +26,20 @@ simpleCrud(router, JobRequest, 'job_requests', serializer, constructor)
   .index(assertRecruiter)
   .show(assertRecruiter)
 
+decide = (decision) ->
+  (req, res, next) ->
+    JobRequest.findByIdAndUpdate(req.params.update, status: decision).exec()
+      .then (jobRequest) ->
+        if jobRequest
+          res.send(job_request: serializer(jobRequest))
+        else
+          controllersUtils.notFound(res)
+      .then null, next
+
+
+router.put '/:id/accept', decide('accepted')
+router.put '/:id/reject', decide('rejected')
+
 router.get '/:id/files/:fileName', (req, res, next) ->
   JobRequest.findById(req.params.id).exec()
     .then (jobRequest) ->
