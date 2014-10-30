@@ -1,3 +1,8 @@
+supertest = require('supertest')
+mongoose  = require('mongoose')
+chai      = require('chai')
+_         = require('lodash')
+
 restrictedCrudSpecs = require('./shared_specs/restricted_crud')
 simpleCrudSpecs     = require('./shared_specs/simple_crud')
 specHelpers         = require('./support/spec_helpers')
@@ -6,11 +11,11 @@ serializer          = require('../app/serializers').jobRequest
 factories           = require('./resources/factories/job_requests')
 app                 = require('../app')
 
-RecruiterAccount = require('mongoose').model('RecruiterAccount')
-AdminAccount     = require('mongoose').model('AdminAccount')
-JobRequest       = require('mongoose').model('JobRequest')
-expect           = require('chai').expect
-agent            = require('supertest')(app)
+RecruiterAccount = mongoose.model('RecruiterAccount')
+AdminAccount     = mongoose.model('AdminAccount')
+JobRequest       = mongoose.model('JobRequest')
+expect           = chai.expect
+agent            = supertest(app)
 
 resource = '/api/v0/job_requests'
 
@@ -69,6 +74,15 @@ describe resource, ->
           @jobRequest = jobRequest
         .then null, console.log
 
+    before (done) ->
+      agent
+        .put("#{resource}/#{@jobRequest.id}/files")
+        .attach('avatar', 'test/fixtures/avatar.jpg')
+        .expect(200)
+        .end (err, res) ->
+          console.log res.body
+          done()
+
     it '', (done) ->
       agent
         .put("#{resource}/#{@jobRequest.id}/files")
@@ -76,4 +90,12 @@ describe resource, ->
         .expect(200)
         .end (err, res) ->
           console.log res.body
+          done()
+
+    it '', (done) ->
+      agent
+        .get("#{resource}/#{@jobRequest.id}/files/avatar.jpg")
+        .expect(200)
+        .end (err, res) ->
+          console.log err, res.headers
           done()

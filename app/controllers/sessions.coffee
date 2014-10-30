@@ -19,11 +19,14 @@ router
       access_token: locals.accessToken
       account: locals.account
 
+    res.cookie('accessToken', locals.accessToken)
     res.status(201).send(response)
 
   .delete '/:id', assertAuthorized, (req, res, next) ->
     AccessToken.findByIdAndRemove(req.params.id).exec()
       .then (tokenRecord) ->
-        if tokenRecord then res.status(200).end()
+        if tokenRecord
+          res.clearCookie('accessToken')
+          res.status(200).end()
         else res.status(404).send(message: 'Not Found', status: 404)
       .then null, next

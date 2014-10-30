@@ -26,6 +26,18 @@ simpleCrud(router, JobRequest, 'job_requests', serializer, constructor)
   .index(assertRecruiter)
   .show(assertRecruiter)
 
+router.get '/:id/files/:fileName', (req, res, next) ->
+  JobRequest.findById(req.params.id).exec()
+    .then (jobRequest) ->
+      if jobRequest
+        res.download("./public/uploads/job_requests/#{jobRequest.id}/#{req.params.fileName}")
+      else
+        controllersUtils.notFound(res) unless jobRequest
+
+    .then null, (err) ->
+      if err.name == 'CastError' then controllersUtils.notFound(res)
+      else next(err)
+
 router.put '/:id/files', (req, res, next) ->
 
   jobRequestId = req.params.id
