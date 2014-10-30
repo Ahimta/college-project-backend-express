@@ -6,10 +6,16 @@ cookieParser   = require 'cookie-parser'
 bodyParser     = require 'body-parser'
 compress       = require 'compression'
 logger         = require 'morgan'
+cors           = require 'cors'
 
 module.exports = (app, config) ->
 
+  corsMiddleware = cors
+    credentials: true
+    origin: true
+
   app.use logger('dev')
+  app.use corsMiddleware
   app.use bodyParser.json()
   app.use cookieParser()
   app.use compress()

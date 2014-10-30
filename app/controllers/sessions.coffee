@@ -30,3 +30,7 @@ router
           res.status(200).end()
         else res.status(404).send(message: 'Not Found', status: 404)
       .then null, next
+
+    .delete '/', (req, res, next) ->
+      res.clearCookie('accessToken')
+      res.status(200).end()
