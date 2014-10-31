@@ -23,6 +23,6 @@ var app = module.exports = express();
 
 require('./config/express')(app, config);
 
-app.listen(config.port);
+app.listen(process.env.PORT || config.port);
 
 require('./db/seeds');
