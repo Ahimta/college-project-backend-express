@@ -7,9 +7,10 @@ baseSerializer = (mongoRecord) ->
   serialzedRecord
 
 accountSerializer = (account) ->
-  _.omit(_.clone(account), 'password')
+  _.omit(baseSerializer(account), 'password')
 
 module.exports =
-  recruiterAccount: _.compose(accountSerializer, baseSerializer)
-  adminAccount: _.compose(accountSerializer, baseSerializer)
+  recruiterAccount: accountSerializer
+  adminAccount: accountSerializer
   jobRequest: baseSerializer
+  account: accountSerializer

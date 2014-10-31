@@ -3,6 +3,7 @@ Q = require('q')
 
 controllersUtils = require('../../../utils/controllers')
 mongodbUtils     = require('../../../utils/mongodb')
+serializers      = require('../../../serializers')
 security         = require('../../../utils/security')
 
 AccessToken = require('../../../models/access_token')
@@ -15,7 +16,7 @@ assertAuthorizedMiddleware = (role=null) ->
     mongodbUtils.assertAccessToken(accessToken, role)
       .then (result) ->
         res.locals.tokenObject = result.tokenObject
-        res.locals.account     = result.account
+        res.locals.account     = serializers.account(result.account)
         res.locals.role        = result.tokenObject.user_role
         next()
       .then null, (err) ->
@@ -27,7 +28,7 @@ module.exports.loginMiddleware = (req, res, next) ->
     .then (result) ->
       res.locals.accessToken = result.accessToken
       res.locals.accountRole = result.accountRole
-      res.locals.account     = result.account
+      res.locals.account     = serializers.account(result.account)
       next()
     .then null, (reason) ->
       controllersUtils.unauthorized(res)
