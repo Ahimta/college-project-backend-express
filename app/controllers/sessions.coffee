@@ -22,6 +22,10 @@ router
     res.cookie('accessToken', locals.accessToken)
     res.status(201).send(response)
 
+  .delete '/current', (req, res, next) ->
+    res.clearCookie('accessToken')
+    res.status(200).end()
+
   .delete '/:id', assertAuthorized, (req, res, next) ->
     AccessToken.findByIdAndRemove(req.params.id).exec()
       .then (tokenRecord) ->
@@ -35,7 +39,3 @@ router
     res.send
       account_role: res.locals.role
       account: res.locals.account
-
-  .delete '/current', (req, res, next) ->
-    res.clearCookie('accessToken')
-    res.status(200).end()
