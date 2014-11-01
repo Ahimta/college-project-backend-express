@@ -41,7 +41,7 @@ module.exports = (app, config) ->
   # will print stacktrace
   if app.get('env') == 'development'
     app.use (err, req, res, next) ->
-      res.send(message: err.message, status: err.status, stack: err.stack)
+      res.send(code: err.code, name: err.name, message: err.message, status: err.status, stack: err.stack)
 
   # production error handler
   # no stacktraces leaked to user

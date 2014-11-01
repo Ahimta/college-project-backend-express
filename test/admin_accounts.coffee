@@ -46,11 +46,23 @@ describe resource, ->
       account = specHelpers.generateAccount()
 
       specHelpers.login(AdminAccount, 'admin', account)
-        .get ('access_token')
-        .then (accessToken) ->
+        .then (accessTokenRecord) ->
+          accessToken = accessTokenRecord.access_token
+          accountId   = accessTokenRecord.user_id
+
           simpleCrud(app, resource, AdminAccount, factories, accessToken, serializer)
             .destroy()
             .create()
             .update()
             .index()
             .show()
+
+          describe '409', ->
+            it 'should response with status 409', (done) ->
+              agent
+                .post(resource)
+                .send(admin_account: account)
+                .set('X-Access-Token', accessToken)
+                .expect(409)
+                .expect(message: 'Conflict', status: 409)
+                .end(done)

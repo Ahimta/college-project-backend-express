@@ -33,15 +33,16 @@ module.exports = (router, model, resource, serializer, constructor=_.identity) -
           model.create(constructedDoc)
         .then (record) ->
           res.status(201).send(getResponseBody(serializer(record)))
-        .then null, next
+        .then null, controllersUtils.mongooseErr(res, next)
 
   update: helper (middleware) ->
     router.put '/:id', middleware, (req, res, next) ->
 
-      model.findByIdAndUpdate req.params.id, req.body[name], (err, record) ->
-        if !record then controllersUtils.notFound(res)
-        else if err then next(err)
-        else res.send(getResponseBody(serializer(record)))
+      model.findByIdAndUpdate(req.params.id, req.body[name]).exec()
+        .then (record) ->
+          if record then res.send(getResponseBody(serializer(record)))
+          else controllersUtils.notFound(res)
+        .then null, controllersUtils.mongooseErr(res, next)
 
   index: helper (middleware)->
     router.get '/', middleware, (req, res, next) ->

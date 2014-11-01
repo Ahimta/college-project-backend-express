@@ -79,9 +79,7 @@ describe resource, ->
         .put("#{resource}/#{@jobRequest.id}/files")
         .attach('avatar', 'test/fixtures/avatar.jpg')
         .expect(200)
-        .end (err, res) ->
-          console.log res.body
-          done()
+        .end(done)
 
     it '', (done) ->
       agent
@@ -89,13 +87,13 @@ describe resource, ->
         .attach('avatar', 'test/fixtures/avatar.jpg')
         .expect(200)
         .end (err, res) ->
-          console.log res.body
-          done()
+          expect(res.body.job_request.files).to.eql(['avatar.jpg'])
+          done(err)
 
     it '', (done) ->
       agent
         .get("#{resource}/#{@jobRequest.id}/files/avatar.jpg")
         .expect(200)
-        .end (err, res) ->
-          console.log err, res.headers
-          done()
+        .expect('Content-Disposition', 'attachment; filename="avatar.jpg"')
+        .expect('Content-Type', 'image/jpeg')
+        .end(done)
