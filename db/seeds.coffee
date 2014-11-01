@@ -1,4 +1,5 @@
 mongoose = require('mongoose')
+Q        = require('q')
 
 constructors = require('../app/constructors')
 
@@ -12,6 +13,11 @@ recruiterAccount =
 adminAccount =
   username: 'admin'
   password: 'admin'
+
+createAccuount = (model, constructor, account) ->
+  Q(constructor(account))
+    .then (persistableAccount) ->
+      model.update({username: persistableAccount.username}, account, {upsert: true}).exec()
 
 RecruiterAccount.remove(username: recruiterAccount.username).exec()
   .then ->
