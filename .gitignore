@@ -31,4 +31,4 @@ node_modules
 .lock-wscript
 
 # mine
-public/uploads
+public/
