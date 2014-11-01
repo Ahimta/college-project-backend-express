@@ -8,6 +8,7 @@ accountConstrouctor = (account) ->
 module.exports =
   recruiterAccount: accountConstrouctor
   adminAccount: accountConstrouctor
+  account: accountConstrouctor
   jobRequest: (jobRequest) ->
     security.generateSecureToken().then (token) ->
       _.merge(_.clone(jobRequest), token: token)
