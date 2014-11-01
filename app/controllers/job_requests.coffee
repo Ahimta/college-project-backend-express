@@ -16,6 +16,8 @@ simpleCrud          = require('./concerns/shared_controllers/simple_crud')
 constructor = require('../constructors').jobRequest
 serializer  = require('../serializers').jobRequest
 
+UPLOADS_PATH = process.env.CLOUD_DIR || './public/uploads'
+
 module.exports = (app) ->
   app.use('/api/v0/job_requests', router)
 
@@ -44,7 +46,7 @@ router.get '/:id/files/:fileName', (req, res, next) ->
   JobRequest.findById(req.params.id).exec()
     .then (jobRequest) ->
       if jobRequest
-        res.download("./public/uploads/job_requests/#{jobRequest.id}/#{req.params.fileName}")
+        res.download("#{UPLOADS_PATH}/job_requests/#{jobRequest.id}/#{req.params.fileName}")
       else
         controllersUtils.notFound(res) unless jobRequest
 
@@ -62,7 +64,7 @@ router.put '/:id/files', (req, res, next) ->
         busboy = new Busboy(headers: req.headers)
 
         busboy.on 'file', (fieldName, file, fileName, encoding, mimeType) ->
-          folderPath = "./public/uploads/job_requests/#{jobRequestId}"
+          folderPath = "#{UPLOADS_PATH}/job_requests/#{jobRequestId}"
 
           Q.nfapply(mkdirp, [folderPath])
             .then (__) ->
