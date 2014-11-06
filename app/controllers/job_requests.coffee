@@ -30,7 +30,7 @@ simpleCrud(router, JobRequest, 'job_requests', serializer, constructor)
 
 decide = (decision) ->
   (req, res, next) ->
-    JobRequest.findByIdAndUpdate(req.params.update, status: decision).exec()
+    JobRequest.findByIdAndUpdate(req.params.id, status: decision).exec()
       .then (jobRequest) ->
         if jobRequest
           res.send(job_request: serializer(jobRequest))

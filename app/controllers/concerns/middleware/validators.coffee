@@ -14,7 +14,14 @@ module.exports.jobRequestValidator = [
     field('job_request.address').required().notEmpty(),
     field('job_request.degree').required().notEmpty(),
     field('job_request.email').required().notEmpty().isEmail(),
-    field('job_request.phone').required().notEmpty()
+    field('job_request.phone').required().notEmpty(),
+
+    field('job_request.highschool_location').required().notEmpty(),
+    field('job_request.highschool_name').required().notEmpty(),
+    field('job_request.current_location').required().notEmpty(),
+    field('job_request.university').required().notEmpty(),
+    field('job_request.id_num').required().notEmpty(),
+    field('job_request.job').required().notEmpty()
   ),
   validator
 ]
