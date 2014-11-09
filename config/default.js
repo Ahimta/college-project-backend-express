@@ -4,6 +4,7 @@ module.exports = {
   root: path.resolve('./'),
   paths: {
     constructors: path.resolve('./app/constructors'),
+    controllers: path.resolve('./app/controllers'),
     serializers: path.resolve('./app/serializers'),
     uploads: './public/uploads',
     models: path.resolve('./app/models'),

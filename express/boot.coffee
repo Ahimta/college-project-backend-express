@@ -1,6 +1,5 @@
 express = require 'express'
 config  = require 'config'
-path    = require 'path'
 fs      = require 'fs'
 
 cookieParser   = require 'cookie-parser'
@@ -22,7 +21,7 @@ module.exports = (app) ->
   app.use compress()
   app.use express.static(config.get('paths.public'))
 
-  controllersPath = path.join __dirname, '../app/controllers'
+  controllersPath = config.get('paths.controllers')
   fs.readdirSync(controllersPath).forEach (file) ->
     if file.indexOf('.coffee') >= 0
       require(controllersPath + '/' + file)(app)
