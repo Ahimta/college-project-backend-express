@@ -1,4 +1,5 @@
 {
+  "port": "PORT",
   "db": "DB_URL",
   "paths": {
     "uploads": "CLOUD_DIR"

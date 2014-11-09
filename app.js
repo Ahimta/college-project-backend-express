@@ -14,8 +14,8 @@ db.on('error', function () {
 
 var app = module.exports = express();
 
-require('./express/boot')(app, config);
+require('./express/boot')(app);
 
-app.listen(process.env.PORT || config.port);
+app.listen(config.get('port'));
 
 require('./db/seeds');

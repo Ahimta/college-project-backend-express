@@ -7,6 +7,7 @@ module.exports = {
     serializers: path.resolve('./app/serializers'),
     uploads: './public/uploads',
     models: path.resolve('./app/models'),
+    public: path.resolve('./public'),
     utils: path.resolve('./app/utils'),
     app: path.resolve('./app')
   },
