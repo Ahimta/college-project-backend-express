@@ -1,13 +1,15 @@
+config = require('config')
+
 restrictedCrud = require('./shared_specs/restricted_crud')
 specHelpers    = require('./support/spec_helpers')
 simpleCrud     = require('./shared_specs/simple_crud')
-serializer     = require('../app/serializers').adminAccount
-factories      = require('./resources/factories/admin_accounts')
-app            = require('../app')
+serializer     = require(config.get('paths.serializers')).adminAccount
+factories      = require(config.get('paths.factories') + '/admin_accounts')
+app            = require(config.get('paths.app'))
 
-RecruiterAccount = require('mongoose').model('RecruiterAccount')
-AdminAccount = require('mongoose').model('AdminAccount')
-agent        = require('supertest')(app)
+RecruiterAccount = require(config.get('paths.models') + '/recruiter_account')
+AdminAccount     = require(config.get('paths.models') + '/admin_account')
+agent            = require('supertest')(app)
 
 resource = '/api/v0/admin_accounts'
 

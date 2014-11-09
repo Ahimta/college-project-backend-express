@@ -1,9 +1,10 @@
 supertest = require('supertest')
+config    = require('config')
 _         = require('lodash')
 
 expect = require('chai').expect
 
-controllersUtils = require('../../app/utils/controllers')
+controllersUtils = require(config.get('paths.utils') + '/controllers')
 specHelpers      = require('../support/spec_helpers')
 
 expectedContentType = 'application/json; charset=utf-8'
@@ -11,17 +12,17 @@ expectedContentType = 'application/json; charset=utf-8'
 expectCbs = specHelpers.expectCbs
 
 #TODO: try to simplify
-module.exports = (app, resource, model, samples, token=null, serializer=null, docConstructor=null) ->
+module.exports = (app, resource, mongooseModel, samples, token=null, serializer=null, docConstructor=null) ->
 
   agent = supertest(app)
   resourceName  = _.last(resource.split('/'))[0...-1]
 
   self = ->
-    module.exports(app, resource, model, samples, token, serializer, docConstructor)
+    module.exports(app, resource, mongooseModel, samples, token, serializer, docConstructor)
 
   getReqOrResBody = controllersUtils.getResponseBody(resourceName)
 
-  hooks = require('../support/hooks')(model, samples.valid[0].form[resourceName], docConstructor)
+  hooks = require('../support/hooks')(mongooseModel, samples.valid[0].form[resourceName], docConstructor)
 
   destroy: ->
     describe "DELETE #{resource}/:id", ->

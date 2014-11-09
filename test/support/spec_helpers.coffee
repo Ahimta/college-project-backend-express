@@ -1,13 +1,14 @@
+config = require('config')
 expect = require('chai').expect
 faker  = require('faker')
 _      = require('lodash')
 Q      = require('q')
 
-app = require('../../app')
+app = require(config.get('paths.app'))
 
-AdminAccount = require('../../app/models/admin_account')
-AccessToken  = require('../../app/models/access_token')
-security     = require('../../app/utils/security')
+AdminAccount = require(config.get('paths.models') + '/admin_account')
+AccessToken  = require(config.get('paths.models') + '/access_token')
+security     = require(config.get('paths.utils') + '/security')
 
 agent = require('supertest')(app)
 

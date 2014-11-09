@@ -1,14 +1,15 @@
 mongoose = require('mongoose')
+config   = require('config')
 expect   = require('chai').expect
 _        = require('lodash')
 
 specHelpers = require('./support/spec_helpers')
-security    = require('../app/utils/security')
-app         = require('../app')
+security    = require(config.get('paths.utils') + '/security')
+app         = require(config.get('paths.app'))
 
-RecruiterAccount = mongoose.model('RecruiterAccount')
-AdminAccount     = mongoose.model('AdminAccount')
-AccessToken      = mongoose.model('AccessToken')
+RecruiterAccount = require(config.get('paths.models') + '/recruiter_account')
+AdminAccount     = require(config.get('paths.models') + '/admin_account')
+AccessToken      = require(config.get('paths.models') + '/access_token')
 
 accountsModels =
   recruiter: RecruiterAccount

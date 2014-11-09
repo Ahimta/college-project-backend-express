@@ -1,22 +1,23 @@
 mongoose = require('mongoose')
 express  = require('express')
-Busboy = require('busboy')
-mkdirp = require('mkdirp')
-fs     = require('fs')
-Q      = require('q')
+Busboy   = require('busboy')
+mkdirp   = require('mkdirp')
+config   = require('config')
+fs       = require('fs')
+Q        = require('q')
 
-JobRequest = mongoose.model('JobRequest')
+JobRequest = require("#{config.get('paths.models')}/job_request")
 router     = express.Router()
 
 jobRequestValidator = require('./concerns/middleware/validators').jobRequestValidator
-controllersUtils    = require('../utils/controllers')
+controllersUtils    = require(config.get('paths.utils') + '/controllers')
 assertRecruiter     = require('./concerns/middleware/authentication').assertRecruiter
 simpleCrud          = require('./concerns/shared_controllers/simple_crud')
 
-constructor = require('../constructors').jobRequest
-serializer  = require('../serializers').jobRequest
+constructor = require(config.get('paths.constructors')).jobRequest
+serializer  = require(config.get('paths.serializers')).jobRequest
 
-UPLOADS_PATH = process.env.CLOUD_DIR || './public/uploads'
+UPLOADS_PATH = config.get('paths.uploads')
 
 module.exports = (app) ->
   app.use('/api/v0/job_requests', router)

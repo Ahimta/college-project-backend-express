@@ -1,12 +1,14 @@
-AdminAccount = require('mongoose').model('AdminAccount')
+config = require('config')
+
+AdminAccount = require("#{config.get('paths.models')}/admin_account")
 router       = require('express').Router()
 
 accountValidator = require('./concerns/middleware/validators').accountValidator
 assertAdmin      = require('./concerns/middleware/authentication').assertAdmin
 simpleCrud       = require('./concerns/shared_controllers/simple_crud')
 
-constructor = require('../constructors').adminAccount
-serializer  = require('../serializers').adminAccount
+constructor = require(config.get('paths.constructors')).adminAccount
+serializer  = require(config.get('paths.serializers')).adminAccount
 
 module.exports = (app) ->
   app.use('/api/v0/admin_accounts', router)

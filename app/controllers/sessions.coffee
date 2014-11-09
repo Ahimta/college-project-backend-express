@@ -1,10 +1,11 @@
+config = require('config')
 router = require('express').Router()
 
 assertAuthorized = require('./concerns/middleware/authentication').assertAuthorized
 sessionValidator = require('./concerns/middleware/validators').sessionValidator
 loginMiddleware  = require('./concerns/middleware/authentication').loginMiddleware
 
-AccessToken = require('../models/access_token')
+AccessToken = require(config.get('paths.models') + '/access_token')
 
 module.exports = (app) ->
   app.use('/api/v0/sessions', router)

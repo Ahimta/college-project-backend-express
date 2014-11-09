@@ -1,14 +1,17 @@
 mongoose = require('mongoose')
+config   = require('config')
 _        = require('lodash')
 Q        = require('q')
 
+modelsPath = config.get('paths.models')
+
 security = require('./security')
 
-AccessToken = require('../models/access_token')
+AccessToken = require(modelsPath + '/access_token')
 
 ACCOUNTS_MODELS =
-  recruiter: require('../models/recruiter_account')
-  admin: require('../models/admin_account')
+  recruiter: require(modelsPath + '/recruiter_account')
+  admin: require(modelsPath + '/admin_account')
 
 
 modelForRole = module.exports.modelForRole = (role) ->

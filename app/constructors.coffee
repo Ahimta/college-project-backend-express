@@ -1,4 +1,6 @@
-security = require('./utils/security')
+config = require('config')
+
+security = require(config.get('paths.utils') + '/security')
 _        = require('lodash')
 
 accountConstrouctor = (account) ->

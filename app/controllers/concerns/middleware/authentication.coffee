@@ -1,12 +1,15 @@
-_ = require('lodash')
-Q = require('q')
+config = require('config')
+_      = require('lodash')
+Q      = require('q')
 
-controllersUtils = require('../../../utils/controllers')
-mongodbUtils     = require('../../../utils/mongodb')
-serializers      = require('../../../serializers')
-security         = require('../../../utils/security')
+utilsPath = config.get('paths.utils')
 
-AccessToken = require('../../../models/access_token')
+controllersUtils = require("#{utilsPath}/controllers")
+mongodbUtils     = require("#{utilsPath}/mongodb")
+serializers      = require(config.get('paths.serializers'))
+security         = require("#{utilsPath}/security")
+
+AccessToken = require("#{config.get('paths.models')}/access_token")
 
 assertAuthorizedMiddleware = (role=null) ->
 

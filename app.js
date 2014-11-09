@@ -2,26 +2,19 @@ require('coffee-script/register');
 
 var mongoose = require('mongoose'),
     express  = require('express'),
-    config   = require('./config/config'),
+    config   = require('config')
     fs       = require('fs');
 
 
-mongoose.connect(process.env.DB_URL || config.db);
+mongoose.connect(config.get('db'));
 var db = mongoose.connection;
 db.on('error', function () {
-  throw new Error('unable to connect to database at ' + config.db);
-});
-
-var modelsPath = __dirname + '/app/models';
-fs.readdirSync(modelsPath).forEach(function (file) {
-  if (/\.coffee$/.test(file)) {
-    require(modelsPath + '/' + file);
-  }
+  throw new Error('unable to connect to database at ' + config.get('db'));
 });
 
 var app = module.exports = express();
 
-require('./config/express')(app, config);
+require('./express/boot')(app, config);
 
 app.listen(process.env.PORT || config.port);
 

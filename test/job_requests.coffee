@@ -1,21 +1,24 @@
 supertest = require('supertest')
 mongoose  = require('mongoose')
+config    = require('config')
 chai      = require('chai')
 _         = require('lodash')
 
 restrictedCrudSpecs = require('./shared_specs/restricted_crud')
 simpleCrudSpecs     = require('./shared_specs/simple_crud')
 specHelpers         = require('./support/spec_helpers')
-constructor         = require('../app/constructors').jobRequest
-serializer          = require('../app/serializers').jobRequest
-factories           = require('./resources/factories/job_requests')
-app                 = require('../app')
+constructor         = require(config.get('paths.constructors')).jobRequest
+serializer          = require(config.get('paths.serializers')).jobRequest
+factories           = require(config.get('paths.factories') + '/job_requests')
+app                 = require(config.get('paths.app'))
 
-RecruiterAccount = mongoose.model('RecruiterAccount')
-AdminAccount     = mongoose.model('AdminAccount')
-JobRequest       = mongoose.model('JobRequest')
+RecruiterAccount = require(config.get('paths.models') + '/recruiter_account')
+AdminAccount     = require(config.get('paths.models') + '/admin_account')
+JobRequest       = require(config.get('paths.models') + '/job_request')
 expect           = chai.expect
 agent            = supertest(app)
+
+fixturesPath = config.get('paths.fixtures')
 
 resource = '/api/v0/job_requests'
 
@@ -77,14 +80,14 @@ describe resource, ->
     before (done) ->
       agent
         .put("#{resource}/#{@jobRequest.id}/files")
-        .attach('avatar', 'test/fixtures/avatar.jpg')
+        .attach('avatar', fixturesPath + '/avatar.jpg')
         .expect(200)
         .end(done)
 
     it '', (done) ->
       agent
         .put("#{resource}/#{@jobRequest.id}/files")
-        .attach('avatar', 'test/fixtures/avatar.jpg')
+        .attach('avatar', fixturesPath + '/avatar.jpg')
         .expect(200)
         .end (err, res) ->
           expect(res.body.job_request.files).to.eql(['avatar.jpg'])

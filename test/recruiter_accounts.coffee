@@ -1,15 +1,16 @@
 supertest = require('supertest')
 mongoose  = require('mongoose')
+config    = require('config')
 
 restrictedCrud = require('./shared_specs/restricted_crud')
 specHelpers    = require('./support/spec_helpers')
 simpleCrud     = require('./shared_specs/simple_crud')
-serializer     = require('../app/serializers').recruiterAccount
-factories      = require('./resources/factories/recruiter_accounts')
-app            = require('../app')
+serializer     = require(config.get('paths.serializers')).recruiterAccount
+factories      = require(config.get('paths.factories') + '/recruiter_accounts')
+app            = require(config.get('paths.app'))
 
-RecruiterAccount = mongoose.model('RecruiterAccount')
-AdminAccount     = mongoose.model('AdminAccount')
+RecruiterAccount = require(config.get('paths.models') + '/recruiter_account')
+AdminAccount     = require(config.get('paths.models') + '/admin_account')
 agent            = supertest(app)
 
 resource = '/api/v0/recruiter_accounts'
