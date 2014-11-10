@@ -6,9 +6,11 @@ Q      = require('q')
 
 app = require(config.get('paths.app'))
 
+constructors = require(config.get('paths.constructors'))
+security     = require(config.get('paths.utils') + '/security')
+
 AdminAccount = require(config.get('paths.models') + '/admin_account')
 AccessToken  = require(config.get('paths.models') + '/access_token')
-security     = require(config.get('paths.utils') + '/security')
 
 agent = require('supertest')(app)
 
@@ -22,12 +24,11 @@ module.exports =
       false
 
   createAccount: (model, account) ->
-    Q(model.remove({username: account.username}).exec())
+    Q(model.remove({username: account.username.toLowerCase()}).exec())
       .then ->
-        security.hash(account.password)
-      .then (hash) ->
-        record = _.merge(_.clone(account), password: hash)
-        model.create(record)
+        constructors.account(account)
+      .then (persistableAccount) ->
+        model.create(persistableAccount)
       .fail console.log
 
 

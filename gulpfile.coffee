@@ -19,13 +19,12 @@ gulp.task 'server:restart', ->
   server.restart()
 
 gulp.task 'test', ->
-
   child_process.exec 'npm test', (err, stdout, stderr) ->
-    console.log(stderr)
+    console.log(err)
     console.log(stdout)
+    console.log(stderr)
 
 gulp.task 'watch', ['server:start', 'test'], ->
-
   gulp.watch(globs, ['server:restart', 'test'])
 
 gulp.task('default', ['watch'])

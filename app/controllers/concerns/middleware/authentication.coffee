@@ -27,7 +27,7 @@ assertAuthorizedMiddleware = (role=null) ->
 
 
 module.exports.loginMiddleware = (req, res, next) ->
-  mongodbUtils.login(req.body.role, req.body.username, req.body.password)
+  mongodbUtils.login(req.form.role, req.form.username, req.form.password)
     .then (result) ->
       res.locals.accessToken = result.accessToken
       res.locals.accountRole = result.accountRole

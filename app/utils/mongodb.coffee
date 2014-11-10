@@ -26,7 +26,7 @@ authenticate = (role, username, password) ->
 
   modelForRole(role)
     .then (model) ->
-      model.findOne({username: username}).exec()
+      model.findOne({username: username.toLowerCase()}).exec()
     .then (account) ->
       security.comparePasswords(password, account.password)
         .then (__) -> account.toObject()

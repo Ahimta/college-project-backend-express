@@ -31,25 +31,44 @@ describe resource, ->
         before -> specHelpers.createAccount(model, account0)
 
         describe 'valid', ->
-          it '', (done) ->
-            agent
-              .post(resource)
-              .send
-                username: account0.username
-                password: account0.password
-                role: role
-              .expect(201)
-              .expect (response) ->
-                accessToken = response.body.access_token
-                accountRole = response.body.account_role
-                account     = response.body.account
+          samples = [
+            {
+              description: 'the original username'
+              username: account0.username
+              password: account0.password
+              role: role
+            }
+            {
+              description: 'the upcased username'
+              username: account0.username.toUpperCase()
+              password: account0.password
+              role: role
+            }
+            {
+              description: 'the downcase username'
+              username: account0.username.toLowerCase()
+              password: account0.password
+              role: role
+            }
+          ]
+          _.forEach samples, (sample, i) ->
+            describe sample.description, ->
+              it 'should respond with 201', (done) ->
+                agent
+                  .post(resource)
+                  .send _.pick(sample, 'username', 'password', 'role')
+                  .expect(201)
+                  .expect (response) ->
+                    accessToken = response.body.access_token
+                    accountRole = response.body.account_role
+                    account     = response.body.account
 
-                expect(account.username).to.eql(account0.username)
-                expect(accessToken.length).to.be.above(99)
-                expect(account.password).to.be.undefined
-                expect(accountRole).to.eql(role)
-                false
-              .end(done)
+                    expect(account.username.toLowerCase()).to.eql(account0.username.toLowerCase())
+                    expect(accessToken.length).to.be.above(99)
+                    expect(account.password).to.be.undefined
+                    expect(accountRole).to.eql(role)
+                    false
+                  .end(done)
 
         describe 'invalid', ->
           samples = [
@@ -65,6 +84,12 @@ describe resource, ->
                 username: account0.username
                 password: (account0.password + 'xx')
             }
+            {
+              description: 'uppercased password'
+              account:
+                username: account0.username
+                password: account0.password.toUpperCase()
+            }
           ]
 
           _.forEach samples, (sample, i) ->
@@ -75,7 +100,7 @@ describe resource, ->
                   .send
                     username: sample.account.username
                     password: sample.account.password
-                    role: 'admin'
+                    role: role
                   .expect(401)
                   .end(done)
 
@@ -115,7 +140,7 @@ describe resource, ->
 
         describe 'the user trying to delete another user token', ->
 
-          it 'his request to delete his token should be granted', (done) ->
+          it 'his request to delete another user token should not be granted', (done) ->
             agent
               .delete("#{resource}/#{@tokenRecord1.id}")
               .set('X-Access-Token', @tokenRecord0.access_token)
