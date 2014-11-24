@@ -19,7 +19,7 @@ modelForRole = module.exports.modelForRole = (role) ->
     model    = ACCOUNTS_MODELS[role]
 
     if model then resolve(model)
-    else reject('Not found')
+    else reject new Error('Model not found for role ' + role)
 
 
 authenticate = (role, username, password) ->
@@ -64,8 +64,7 @@ module.exports.login = (role, username, password) ->
             tokenRecord: tokenRecord
             account: result.account
       .then (result) ->
-        accountWithoutPassword = _.omit(result.account, 'password')
 
         accessToken: result.tokenRecord.access_token
-        account: accountWithoutPassword
+        account: result.account
         accountRole: role

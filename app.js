@@ -2,9 +2,11 @@ require('coffee-script/register');
 
 var mongoose = require('mongoose'),
     express  = require('express'),
-    config   = require('config')
+    config   = require('config'),
+    fse      = require('fs-extra'),
     fs       = require('fs');
 
+fse.ensureFile(config.get('paths.log'));
 
 mongoose.connect(config.get('db'));
 var db = mongoose.connection;

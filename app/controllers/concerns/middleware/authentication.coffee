@@ -26,17 +26,6 @@ assertAuthorizedMiddleware = (role=null) ->
         controllersUtils.unauthorized(res)
 
 
-module.exports.loginMiddleware = (req, res, next) ->
-  mongodbUtils.login(req.form.role, req.form.username, req.form.password)
-    .then (result) ->
-      res.locals.accessToken = result.accessToken
-      res.locals.accountRole = result.accountRole
-      res.locals.account     = serializers.account(result.account)
-      next()
-    .then null, (reason) ->
-      controllersUtils.unauthorized(res)
-
-
 module.exports.assertAuthorized = assertAuthorizedMiddleware()
 
 module.exports.assertRecruiter = assertAuthorizedMiddleware('recruiter')

@@ -3,7 +3,10 @@ Q = require('q')
 
 controllersUtils = require('../../../utils/controllers')
 
-module.exports = (router, model, resource, serializer, constructor=_.identity) ->
+defaultHooks =
+  afterRemove: _.identity
+
+module.exports = (router, model, resource, serializer, constructor=_.identity, hooks=defaultHooks) ->
 
   name = controllersUtils.getResourceName(resource)
 
@@ -20,10 +23,12 @@ module.exports = (router, model, resource, serializer, constructor=_.identity) -
   destroy: helper (middleware) ->
     router.delete '/:id', middleware, (req, res, next) ->
 
-      model.findByIdAndRemove req.params.id, (err, record) ->
-        if !record then controllersUtils.notFound(res)
+      model.findByIdAndRemove req.params.id, (err, removedRecord) ->
+        if !removedRecord then controllersUtils.notFound(res)
         else if err then next(err)
-        else res.send(getResponseBody(serializer(record)))
+        else
+          res.send(getResponseBody(serializer(removedRecord)))
+          hooks.afterRemove(removedRecord)
 
   create: helper (middleware) ->
     router.post '/', middleware, (req, res, next) ->

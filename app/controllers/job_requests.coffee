@@ -1,13 +1,14 @@
 mongoose = require('mongoose')
 express  = require('express')
 Busboy   = require('busboy')
-mkdirp   = require('mkdirp')
 config   = require('config')
+fse      = require('fs-extra')
 fs       = require('fs')
 Q        = require('q')
 
 JobRequest = require("#{config.get('paths.models')}/job_request")
 router     = express.Router()
+hooks      = require('./concerns/hooks').jobRequest
 
 jobRequestValidator = require('./concerns/middleware/validators').jobRequestValidator
 controllersUtils    = require(config.get('paths.utils') + '/controllers')
@@ -22,7 +23,7 @@ UPLOADS_PATH = config.get('paths.uploads')
 module.exports = (app) ->
   app.use('/api/v0/job_requests', router)
 
-simpleCrud(router, JobRequest, 'job_requests', serializer, constructor)
+simpleCrud(router, JobRequest, 'job_requests', serializer, constructor, hooks)
   .destroy(assertRecruiter)
   .create([jobRequestValidator])
   .update([assertRecruiter, jobRequestValidator])
@@ -67,7 +68,7 @@ router.put '/:id/files', (req, res, next) ->
         busboy.on 'file', (fieldName, file, fileName, encoding, mimeType) ->
           folderPath = "#{UPLOADS_PATH}/job_requests/#{jobRequestId}"
 
-          Q.nfapply(mkdirp, [folderPath])
+          Q.nfapply(fse.mkdirs, [folderPath])
             .then (__) ->
               filePath = "#{folderPath}/#{fileName}"
               file.pipe(fs.createWriteStream(filePath))

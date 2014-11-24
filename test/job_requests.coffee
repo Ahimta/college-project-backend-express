@@ -2,6 +2,7 @@ supertest = require('supertest')
 mongoose  = require('mongoose')
 config    = require('config')
 chai      = require('chai')
+fse       = require('fs-extra')
 _         = require('lodash')
 
 restrictedCrudSpecs = require('./shared_specs/restricted_crud')
@@ -19,10 +20,17 @@ expect           = chai.expect
 agent            = supertest(app)
 
 fixturesPath = config.get('paths.fixtures')
+uploadsPath  = (config.get('paths.uploads') + '/job_requests')
 
 resource = '/api/v0/job_requests'
 
 describe resource, ->
+
+  before (done) ->
+    fse.remove uploadsPath, done
+
+  after (done) ->
+    fse.remove uploadsPath, done
 
   describe 'Not logged in', ->
     simpleCrudSpecs(app, resource, JobRequest, factories, null, serializer)

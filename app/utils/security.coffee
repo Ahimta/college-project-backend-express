@@ -2,8 +2,10 @@ bcrypt = require('bcrypt')
 crypto = require('crypto')
 Q      = require('q')
 
-module.exports.generateSecureToken = ->
-  Q.nfapply(crypto.randomBytes, [100]).then (buffer) ->
+ROUNDS = 10
+
+module.exports.generateSecureToken = (length=100) ->
+  Q.nfapply(crypto.randomBytes, [length]).then (buffer) ->
     buffer.toString('hex')
 
 module.exports.comparePasswords = (password, passwordHash) ->
@@ -14,4 +16,4 @@ module.exports.comparePasswords = (password, passwordHash) ->
 
 
 module.exports.hash = (password) ->
-  Q.nfapply(bcrypt.hash, [password, 10])
+  Q.nfapply(bcrypt.hash, [password, ROUNDS])

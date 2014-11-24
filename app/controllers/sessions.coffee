@@ -1,9 +1,14 @@
 config = require('config')
 router = require('express').Router()
+logger = require config.get('paths.logger')
+_      = require('lodash')
 
 assertAuthorized = require('./concerns/middleware/authentication').assertAuthorized
 sessionValidator = require('./concerns/middleware/validators').sessionValidator
-loginMiddleware  = require('./concerns/middleware/authentication').loginMiddleware
+
+controllersUtils = require config.get('paths.utils') + '/controllers'
+mongodbUtils     = require config.get('paths.utils') + '/mongodb'
+serializers      = require config.get('paths.serializers')
 
 AccessToken = require(config.get('paths.models') + '/access_token')
 
@@ -11,17 +16,23 @@ module.exports = (app) ->
   app.use('/api/v0/sessions', router)
 
 router
-  .post '/', sessionValidator, loginMiddleware, (req, res, next) ->
+  .post '/', sessionValidator, (req, res, next) ->
 
-    locals = res.locals
+    mongodbUtils.login(req.form.role, req.form.username, req.form.password)
+      .then (result) ->
+        jsonResponse =
+          access_token: result.accessToken
+          account_role: result.accountRole
+          account: serializers.account(result.account)
 
-    response =
-      account_role: locals.accountRole
-      access_token: locals.accessToken
-      account: locals.account
+        res.cookie('accessToken', result.accessToken)
+        res.status(201).send(jsonResponse)
+      .then null, (err) ->
+        controllersUtils.unauthorized(res)
 
-    res.cookie('accessToken', locals.accessToken)
-    res.status(201).send(response)
+        level = if err then 'error' else 'info'
+        logger.log level, err, _.pick(req.form, 'role', 'username')
+
 
   .delete '/current', (req, res, next) ->
     res.clearCookie('accessToken')

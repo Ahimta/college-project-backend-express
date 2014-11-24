@@ -1,4 +1,5 @@
 mongoose = require('mongoose')
+config   = require('config')
 
 schema = new mongoose.Schema
   specialization: {type: String, required: true}
