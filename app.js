@@ -6,7 +6,11 @@ var mongoose = require('mongoose'),
     fse      = require('fs-extra'),
     fs       = require('fs');
 
-fse.ensureFile(config.get('paths.log'));
+fse.ensureFile(config.get('paths.log'), function (err) {
+  if (err) {
+    throw new Error('unable to create log path');
+  }
+});
 
 mongoose.connect(config.get('db'));
 var db = mongoose.connection;

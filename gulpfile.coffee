@@ -1,7 +1,5 @@
 child_process = require('child_process')
 server        = require('gulp-develop-server')
-mocha         = require('gulp-mocha')
-gutil         = require('gulp-util')
 gulp          = require('gulp')
 
 globs = [
