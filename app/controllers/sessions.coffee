@@ -29,9 +29,7 @@ router
         res.status(201).send(jsonResponse)
       .then null, (err) ->
         controllersUtils.unauthorized(res)
-
-        level = if err then 'error' else 'info'
-        logger.log level, err, _.pick(req.form, 'role', 'username')
+        logger.error err, _.pick(req.form, 'role', 'username') if err
 
 
   .delete '/current', (req, res, next) ->
@@ -44,7 +42,7 @@ router
         if tokenRecord
           res.clearCookie('accessToken')
           res.status(200).end()
-        else res.status(404).send(message: 'Not Found', status: 404)
+        else controllersUtils.notFound(res)
       .then null, next
 
   .get '/current', assertAuthorized, (req, res, next) ->

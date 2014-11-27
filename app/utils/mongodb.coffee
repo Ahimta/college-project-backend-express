@@ -28,8 +28,11 @@ authenticate = (role, username, password) ->
     .then (model) ->
       model.findOne({username: username.toLowerCase()}).exec()
     .then (account) ->
-      security.comparePasswords(password, account.password)
-        .then (__) -> account.toObject()
+      if account
+        security.comparePasswords(password, account.password)
+          .then (__) -> account.toObject()
+      else
+        throw new Error("user with username: '#{username}' not found")
 
 
 module.exports.assertAccessToken = (accessToken, role=null) ->
@@ -38,8 +41,11 @@ module.exports.assertAccessToken = (accessToken, role=null) ->
 
   Q(AccessToken.findOne(query).exec())
     .then (tokenRecord) ->
-      modelForRole(tokenRecord.user_role).then (model) ->
-        {tokenRecord: tokenRecord, accountModel: model}
+      if tokenRecord
+        modelForRole(tokenRecord.user_role).then (model) ->
+          {tokenRecord: tokenRecord, accountModel: model}
+      else
+        throw new Error('Access token not found')
     .then (result) ->
       result.accountModel.findOne({_id: result.tokenRecord.user_id}).exec().then (accountRecord) ->
         tokenObject: result.tokenRecord.toObject()

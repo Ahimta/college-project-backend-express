@@ -38,8 +38,8 @@ module.exports.courseValidator = [
 module.exports.accountValidator = [
 
   form(
-    field('admin_account.username').required().notEmpty(),
-    field('admin_account.password').required().notEmpty()
+    field('admin_account.username').required().notEmpty().toLower(),
+    field('admin_account.password').required().notEmpty().toLower()
   ),
   validator
 ]
@@ -47,8 +47,8 @@ module.exports.accountValidator = [
 module.exports.recruiterAccountValidator = [
 
   form(
-    field('recruiter_account.username').required().notEmpty(),
-    field('recruiter_account.password').required().notEmpty()
+    field('recruiter_account.username').required().notEmpty().toLower(),
+    field('recruiter_account.password').required().notEmpty().toLower()
   ),
   validator
 ]

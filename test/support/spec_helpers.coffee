@@ -1,5 +1,6 @@
 config = require('config')
 expect = require('chai').expect
+logger = require config.get('paths.logger')
 faker  = require('faker')
 _      = require('lodash')
 Q      = require('q')
@@ -29,11 +30,11 @@ module.exports =
         constructors.account(account)
       .then (persistableAccount) ->
         model.create(persistableAccount)
-      .fail console.log
+      .fail logger.error
 
 
   generateAccount: ->
-    username: faker.name.findName()
+    username: faker.name.findName().toLowerCase()
     password: faker.internet.password()
 
   login: (model, role, account) ->
@@ -51,7 +52,7 @@ module.exports =
       .fail console.log
 
   createAdmin: (account) ->
-    @login(AdminAccount, @generateAccount)
+    @login(AdminAccount, 'admin', @generateAccount())
       .then (tokenRecord) ->
         Q.Promise (resolve, reject, notify) ->
           agent
@@ -73,4 +74,4 @@ module.exports =
             .end (err, res) ->
               if err then reject(err)
               else resolve(res.body.access_token)
-      .fail console.log
+      .fail logger.error

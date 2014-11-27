@@ -1,4 +1,3 @@
-mongoose = require('mongoose')
 express  = require('express')
 Busboy   = require('busboy')
 config   = require('config')
@@ -38,7 +37,7 @@ decide = (decision) ->
           res.send(job_request: serializer(jobRequest))
         else
           controllersUtils.notFound(res)
-      .then null, next
+      .then null, controllersUtils.mongooseErr(res, next)
 
 
 router.put '/:id/accept', decide('accepted')
@@ -50,11 +49,9 @@ router.get '/:id/files/:fileName', (req, res, next) ->
       if jobRequest
         res.download("#{UPLOADS_PATH}/job_requests/#{jobRequest.id}/#{req.params.fileName}")
       else
-        controllersUtils.notFound(res) unless jobRequest
+        controllersUtils.notFound(res)
 
-    .then null, (err) ->
-      if err.name == 'CastError' then controllersUtils.notFound(res)
-      else next(err)
+    .then null, controllersUtils.mongooseErr(res, next)
 
 router.put '/:id/files', (req, res, next) ->
 
@@ -62,30 +59,35 @@ router.put '/:id/files', (req, res, next) ->
 
   JobRequest.findById(jobRequestId).exec()
     .then (jobRequest) ->
-      if jobRequest
-        busboy = new Busboy(headers: req.headers)
+      return controllersUtils.notFound(res) unless jobRequest
 
-        busboy.on 'file', (fieldName, file, fileName, encoding, mimeType) ->
-          folderPath = "#{UPLOADS_PATH}/job_requests/#{jobRequestId}"
+      busboy = new Busboy
+        headers: req.headers
+        limits:
+          fields: 1
+          fileSize: (2 * 1024 * 1024)
+          files: 5
 
-          Q.nfapply(fse.mkdirs, [folderPath])
-            .then (__) ->
-              filePath = "#{folderPath}/#{fileName}"
-              file.pipe(fs.createWriteStream(filePath))
-            .then null, next
+      busboy.on 'file', (fieldName, file, fileName, encoding, mimeType) ->
+        folderPath = "#{UPLOADS_PATH}/job_requests/#{jobRequestId}"
 
-          file.on 'end', ->
-            jobRequest.update({$addToSet: {files: fileName}}).exec().then null, next
+        Q.nfapply(fse.mkdirs, [folderPath])
+          .then (__) ->
+            filePath    = "#{folderPath}/#{fileName}"
+            writeStream = fs.createWriteStream(filePath)
+            file.pipe(writeStream)
+          .then null, next
 
-        busboy.on 'finish', ->
-          JobRequest.findById(jobRequestId).exec()
-            .then (newJobRequest) ->
-              res.send(job_request: serializer(newJobRequest))
-            .then null, next
+        file.on 'end', ->
+          command = {$addToSet: {files: fileName}}
+          jobRequest.update(command).exec()
+            .then null, controllersUtils.mongooseErr(res, next)
 
-        req.pipe(busboy)
-      else
-        controllersUtils.notFound(res)
-    .then null, (err) ->
-      if err.name == 'CastError' then controllersUtils.notFound(res)
-      else next(err)
+      busboy.on 'finish', ->
+        JobRequest.findById(jobRequestId).exec()
+          .then (newJobRequest) ->
+            res.send(job_request: serializer(newJobRequest))
+          .then null, controllersUtils.mongooseErr(res, next)
+
+      req.pipe(busboy)
+    .then null, controllersUtils.mongooseErr(res, next)

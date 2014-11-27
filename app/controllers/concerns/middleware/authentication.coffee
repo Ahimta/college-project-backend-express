@@ -1,4 +1,5 @@
 config = require('config')
+logger = require config.get('paths.logger')
 _      = require('lodash')
 Q      = require('q')
 
@@ -24,7 +25,7 @@ assertAuthorizedMiddleware = (role=null) ->
         next()
       .then null, (err) ->
         controllersUtils.unauthorized(res)
-
+        logger.error(err, role: role) if err
 
 module.exports.assertAuthorized = assertAuthorizedMiddleware()
 

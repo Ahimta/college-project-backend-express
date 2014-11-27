@@ -68,11 +68,11 @@ module.exports = (app, resource, mongooseModel, samples, token=null, serializer=
     describe "POST #{resource}", ->
 
       before     -> hooks.assingCount(@)
-      beforeEach -> hooks.expectSameCount(@)
 
       describe 'invalid', ->
 
-        afterEach -> hooks.expectSameCount(@)
+        beforeEach -> hooks.expectSameCount(@)
+        afterEach  -> hooks.expectSameCount(@)
 
         _.forEach samples.invalid, (invalidRecord, i) ->
           it i, (done) ->
@@ -89,6 +89,7 @@ module.exports = (app, resource, mongooseModel, samples, token=null, serializer=
 
       describe 'valid', ->
 
+        before    -> hooks.expectSameCount(@)
         afterEach -> hooks.expectLessCount(@, -1)
 
         _.forEach samples.valid, (validRecord, i) ->
