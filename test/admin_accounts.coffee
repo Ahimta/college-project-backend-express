@@ -1,11 +1,13 @@
 config = require('config')
+logger = require config.get('paths.logger')
 
-restrictedCrud = require('./shared_specs/restricted_crud')
-specHelpers    = require('./support/spec_helpers')
-simpleCrud     = require('./shared_specs/simple_crud')
-serializer     = require(config.get('paths.serializers')).adminAccount
-factories      = require(config.get('paths.factories') + '/admin_accounts')
-app            = require(config.get('paths.app'))
+restrictedCrudSpecs = require('./shared_specs/restricted_crud')
+accountableSpecs    = require('./shared_specs/accountable')
+simpleCrudSpecs     = require('./shared_specs/simple_crud')
+specHelpers         = require('./support/spec_helpers')
+serializer          = require(config.get('paths.serializers')).adminAccount
+factories           = require(config.get('paths.factories') + '/admin_accounts')
+app                 = require(config.get('paths.app'))
 
 RecruiterAccount = require(config.get('paths.models') + '/recruiter_account')
 AdminAccount     = require(config.get('paths.models') + '/admin_account')
@@ -18,7 +20,7 @@ describe resource, ->
 
   describe 'Not logged in', ->
 
-    restrictedCrud(app, resource)
+    restrictedCrudSpecs(app, resource)
       .destroy()
       .create()
       .update()
@@ -35,7 +37,7 @@ describe resource, ->
       specHelpers.login(RecruiterAccount, 'recruiter', account)
         .get('access_token')
         .then (accessToken) ->
-          restrictedCrud(app, resource, accessToken)
+          restrictedCrudSpecs(app, resource, accessToken)
             .destroy()
             .create()
             .update()
@@ -48,23 +50,15 @@ describe resource, ->
       account = specHelpers.generateAccount()
 
       specHelpers.login(AdminAccount, 'admin', account)
-        .then (accessTokenRecord) ->
-          accessToken = accessTokenRecord.access_token
-          accountId   = accessTokenRecord.user_id
+        .get('access_token')
+        .then (accessToken) ->
 
-          simpleCrud(app, resource, AdminAccount, factories, accessToken, serializer)
+          simpleCrudSpecs(app, resource, AdminAccount, factories, accessToken, serializer)
             .destroy()
             .create()
             .update()
             .index()
             .show()
 
-          describe '409', ->
-            it 'should response with status 409', (done) ->
-              agent
-                .post(resource)
-                .send(admin_account: account)
-                .set('X-Access-Token', accessToken)
-                .expect(409)
-                .expect(message: 'Conflict', status: 409)
-                .end(done)
+          accountableSpecs(app, resource, AdminAccount, accessToken)
+        .then null, logger.error

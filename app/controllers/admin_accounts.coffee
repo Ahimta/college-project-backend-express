@@ -3,9 +3,9 @@ config = require('config')
 AdminAccount = require("#{config.get('paths.models')}/admin_account")
 router       = require('express').Router()
 
-accountValidator = require('./concerns/middleware/validators').accountValidator
-assertAdmin      = require('./concerns/middleware/authentication').assertAdmin
-simpleCrud       = require('./concerns/shared_controllers/simple_crud')
+assertAdmin = require('./concerns/middleware/authentication').assertAdmin
+simpleCrud  = require('./concerns/shared_controllers/simple_crud')
+validator   = require('./concerns/middleware/validators').adminAccount
 
 constructor = require(config.get('paths.constructors')).adminAccount
 serializer  = require(config.get('paths.serializers')).adminAccount
@@ -15,7 +15,7 @@ module.exports = (app) ->
 
 simpleCrud(router, AdminAccount, 'admin_accounts', serializer, constructor)
   .destroy(assertAdmin)
-  .create([assertAdmin, accountValidator])
-  .update([assertAdmin, accountValidator])
+  .create([assertAdmin, validator])
+  .update([assertAdmin, validator])
   .index(assertAdmin)
   .show(assertAdmin)

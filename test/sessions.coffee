@@ -1,6 +1,7 @@
 mongoose = require('mongoose')
 config   = require('config')
 expect   = require('chai').expect
+logger   = require config.get('paths.logger')
 _        = require('lodash')
 
 specHelpers = require('./support/spec_helpers')
@@ -50,6 +51,12 @@ describe resource, ->
               password: account0.password
               role: role
             }
+            {
+              description: 'swapcased username'
+              username: specHelpers.swapCase(account0.username)
+              password: account0.password
+              role: role
+            }
           ]
           _.forEach samples, (sample, i) ->
             describe sample.description, ->
@@ -89,6 +96,12 @@ describe resource, ->
               account:
                 username: account0.username
                 password: account0.password.toUpperCase()
+            }
+            {
+              description: 'swapcased password'
+              account:
+                username: account0.username
+                password: specHelpers.swapCase(account0.password)
             }
           ]
 

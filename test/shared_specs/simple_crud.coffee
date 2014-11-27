@@ -15,8 +15,8 @@ expectCbs = specHelpers.expectCbs
 #TODO: try to simplify
 module.exports = (app, resource, mongooseModel, samples, token=null, serializer=null, docConstructor=null) ->
 
-  agent = supertest(app)
-  resourceName  = _.last(resource.split('/'))[0...-1]
+  resourceName = controllersUtils.getResourceName(resource)
+  agent        = supertest(app)
 
   self = ->
     module.exports(app, resource, mongooseModel, samples, token, serializer, docConstructor)

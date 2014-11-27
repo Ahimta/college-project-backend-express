@@ -32,6 +32,14 @@ module.exports =
         model.create(persistableAccount)
       .fail logger.error
 
+  swapCase: (string) ->
+    _.chain(string)
+      .map (char) ->
+        if char.toLowerCase() == char then char.toUpperCase()
+        else char.toLowerCase()
+      .reduce (x, y) ->
+        x + y
+      .value()
 
   generateAccount: ->
     username: faker.name.findName().toLowerCase()

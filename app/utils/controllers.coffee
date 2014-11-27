@@ -1,7 +1,10 @@
+_ = require('lodash')
+
 module.exports =
 
   getResourceName: (resource) ->
     resource.split('/').join('_')[0...-1]
+    _.last(resource.split('/'))[0...-1]
 
   getResponseBody: (resourceName) ->
     (record) ->
