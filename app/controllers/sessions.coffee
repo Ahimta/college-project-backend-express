@@ -37,13 +37,14 @@ router
     res.status(200).end()
 
   .delete '/:id', assertAuthorized, (req, res, next) ->
+
     AccessToken.findByIdAndRemove(req.params.id).exec()
       .then (tokenRecord) ->
         if tokenRecord
           res.clearCookie('accessToken')
           res.status(200).end()
         else controllersUtils.notFound(res)
-      .then null, next
+      .then null, controllersUtils.mongooseErr(res, next)
 
   .get '/current', assertAuthorized, (req, res, next) ->
     res.send

@@ -1,8 +1,9 @@
 supertest = require('supertest')
 config    = require('config')
+chai      = require('chai')
 _         = require('lodash')
 
-expect = require('chai').expect
+expect = chai.expect
 
 controllersUtils = require(config.get('paths.utils') + '/controllers')
 specHelpers      = require('../support/spec_helpers')
@@ -28,7 +29,7 @@ module.exports = (app, resource, mongooseModel, samples, token=null, serializer=
     describe "DELETE #{resource}/:id", ->
 
       before     -> hooks.createRecord(@)
-      before     -> hooks.assingCount(@)
+      before     -> hooks.assignCount(@)
       beforeEach -> hooks.expectSameCount(@)
 
       describe 'does not exist', ->
@@ -57,6 +58,8 @@ module.exports = (app, resource, mongooseModel, samples, token=null, serializer=
             .expect (response) =>
               expected = serializer(@record)
               actual   = serializer(response.body[resourceName])
+
+              expect(actual.id).to.eql(expected.id)
               expect(actual).to.eql(expected)
               false
             .end(done)
@@ -67,7 +70,7 @@ module.exports = (app, resource, mongooseModel, samples, token=null, serializer=
 
     describe "POST #{resource}", ->
 
-      before     -> hooks.assingCount(@)
+      before -> hooks.assignCount(@)
 
       describe 'invalid', ->
 
@@ -113,12 +116,13 @@ module.exports = (app, resource, mongooseModel, samples, token=null, serializer=
     describe "PUT #{resource}/:id", ->
 
       before     -> hooks.createRecord(@)
-      before     -> hooks.assingCount(@)
-      beforeEach -> hooks.expectSameCount(@)
+      before     -> hooks.assignCount(@)
 
+      beforeEach -> hooks.expectSameCount(@)
       afterEach  -> hooks.expectSameCount(@)
 
       describe 'invalid', ->
+
         sample = {'does not exist': samples.invalid, exists: samples.invalid}
         _.forEach sample, (factories, context) ->
           describe context, ->
@@ -159,9 +163,11 @@ module.exports = (app, resource, mongooseModel, samples, token=null, serializer=
                 .send(validRecord.form)
                 .expect('Content-Type', expectedContentType)
                 .expect(200)
-                .expect (response) ->
+                .expect (response) =>
                   expected = serializer(validRecord.res)
                   actual   = _.omit(serializer(response.body[resourceName]), samples.blacklist)
+
+                  expect(response.body[resourceName].id).to.eql(@record.id)
                   expect(actual).to.eql(expected)
                   false
                 .end(done)
@@ -171,7 +177,7 @@ module.exports = (app, resource, mongooseModel, samples, token=null, serializer=
   index: ->
     describe "GET #{resource}", ->
 
-      before     -> hooks.assingCount(@)
+      before     -> hooks.assignCount(@)
       beforeEach -> hooks.expectSameCount(@)
 
       afterEach -> hooks.expectSameCount(@)
@@ -193,7 +199,7 @@ module.exports = (app, resource, mongooseModel, samples, token=null, serializer=
     describe "GET #{resource}", ->
 
       before     -> hooks.createRecord(@)
-      before     -> hooks.assingCount(@)
+      before     -> hooks.assignCount(@)
       beforeEach -> hooks.expectSameCount(@)
 
       afterEach -> hooks.expectSameCount(@)
@@ -216,6 +222,7 @@ module.exports = (app, resource, mongooseModel, samples, token=null, serializer=
           .expect (response) =>
             expected = serializer(@record)
             actual   = serializer(response.body[resourceName])
+
             expect(actual).to.eql(expected)
             false
           .end(done)

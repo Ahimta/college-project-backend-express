@@ -1,7 +1,8 @@
-_ = require('lodash')
-Q = require('q')
+config = require('config')
+_      = require('lodash')
+Q      = require('q')
 
-controllersUtils = require('../../../utils/controllers')
+controllersUtils = require (config.get('paths.utils') + '/controllers')
 
 defaultHooks =
   afterRemove: _.identity
@@ -13,7 +14,7 @@ module.exports = (router, model, resource, serializer, constructor=_.identity, h
   getResponseBody = controllersUtils.getResponseBody(name)
 
   self = ->
-    module.exports(router, model, resource, serializer, constructor)
+    module.exports(router, model, resource, serializer, constructor, hooks)
 
   helper = (cb) ->
     (middleware=[]) ->
@@ -23,12 +24,14 @@ module.exports = (router, model, resource, serializer, constructor=_.identity, h
   destroy: helper (middleware) ->
     router.delete '/:id', middleware, (req, res, next) ->
 
-      model.findByIdAndRemove req.params.id, (err, removedRecord) ->
-        if !removedRecord then controllersUtils.notFound(res)
-        else if err then next(err)
-        else
-          res.send(getResponseBody(serializer(removedRecord)))
-          hooks.afterRemove(removedRecord)
+      model.findByIdAndRemove(req.params.id).exec()
+        .then (removedRecord) ->
+          if removedRecord
+            res.send(getResponseBody(serializer(removedRecord)))
+            hooks.afterRemove(removedRecord)
+          else
+            controllersUtils.notFound(res)
+        .then null, controllersUtils.mongooseErr(res, next)
 
   create: helper (middleware) ->
     router.post '/', middleware, (req, res, next) ->
@@ -60,7 +63,8 @@ module.exports = (router, model, resource, serializer, constructor=_.identity, h
   show: helper (middleware) ->
     router.get '/:id', middleware, (req, res, next) ->
 
-      model.findById req.params.id, (err, record) ->
-        if !record then controllersUtils.notFound(res)
-        else if err then next(err)
-        else res.send(getResponseBody(serializer(record)))
+      model.findById(req.params.id).exec()
+        .then (record) ->
+          if record then res.send(getResponseBody(serializer(record)))
+          else controllersUtils.notFound(res)
+        .then null, controllersUtils.mongooseErr(res, next)

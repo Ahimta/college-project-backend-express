@@ -12,14 +12,14 @@ module.exports = (mongooseModel, doc, docConstructor=_.identity) ->
     mongooseModel.count().exec().then (count) ->
       expect(count).to.equal(that.count)
 
-  assingCount: (that) ->
+  assignCount: (that) ->
     mongooseModel.count().exec().then (count) ->
       that.count = count
 
   createRecord: (that) ->
     Q(docConstructor(doc))
       .then (validDoc) ->
-        mongooseModel.remove(username: validDoc.username).exec().then ->
+        mongooseModel.remove(username: validDoc.username?.toLowerCase()).exec().then ->
           mongooseModel.create(validDoc)
       .then (record) ->
         that.record = _.merge(record.toJSON(), id: record.id)
