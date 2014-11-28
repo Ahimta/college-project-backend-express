@@ -2,7 +2,6 @@ express = require 'express'
 config  = require 'config'
 fs      = require 'fs'
 
-cookieParser   = require 'cookie-parser'
 bodyParser     = require 'body-parser'
 compress       = require 'compression'
 logger         = require 'morgan'
@@ -17,9 +16,8 @@ module.exports = (app) ->
   app.use logger('dev')
   app.use corsMiddleware
   app.use bodyParser.json()
-  app.use cookieParser()
   app.use compress()
-  app.use express.static(config.get('paths.public'))
+  app.use express.static config.get('paths.public')
 
   controllersPath = config.get('paths.controllers')
   fs.readdirSync(controllersPath).forEach (file) ->

@@ -25,7 +25,6 @@ router
           account_role: result.accountRole
           account: serializers.account(result.account)
 
-        res.cookie('accessToken', result.accessToken)
         res.status(201).send(jsonResponse)
       .then null, (err) ->
         controllersUtils.unauthorized(res)
@@ -33,7 +32,6 @@ router
 
 
   .delete '/current', (req, res, next) ->
-    res.clearCookie('accessToken')
     res.status(200).end()
 
   .delete '/:id', assertAuthorized, (req, res, next) ->

@@ -15,7 +15,7 @@ AccessToken = require("#{config.get('paths.models')}/access_token")
 assertAuthorizedMiddleware = (role=null) ->
 
   (req, res, next) ->
-    accessToken = req.query.access_token || req.get('X-Access-Token') || req.cookies.accessToken
+    accessToken = req.query.access_token || req.get('X-Access-Token')
 
     mongodbUtils.assertAccessToken(accessToken, role)
       .then (result) ->
