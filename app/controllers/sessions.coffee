@@ -28,7 +28,9 @@ router
         res.status(201).send(jsonResponse)
       .then null, (err) ->
         controllersUtils.unauthorized(res)
-        logger.error err, _.pick(req.form, 'role', 'username') if err
+        if err
+          metadata = _.pick(req.form, 'role', 'username')
+          logger.error(err, metadata)
 
 
   .delete '/current', (req, res, next) ->

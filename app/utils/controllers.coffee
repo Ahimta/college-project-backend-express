@@ -1,4 +1,6 @@
-_ = require('lodash')
+config = require('config')
+logger = require config.get('paths.logger')
+_      = require('lodash')
 
 module.exports =
 
@@ -22,6 +24,8 @@ module.exports =
 
   mongooseErr: (res, next) ->
     (err) ->
+      logger.error('controllersUtils.mongooseErr', err)
+
       if err.name == 'CastError' then module.exports.notFound(res)
-      else if err.code == 11000 then res.status(409).send(message: 'Conflict', status: 409)
+      else if err.code?.toString() == '11000' then res.status(409).send(message: 'Conflict', status: 409)
       else next(err)
