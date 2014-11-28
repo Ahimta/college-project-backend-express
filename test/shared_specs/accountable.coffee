@@ -1,5 +1,6 @@
 supertest = require('supertest')
 config    = require('config')
+logger    = require config.get('paths.logger')
 _         = require('lodash')
 Q         = require('q')
 
@@ -43,3 +44,4 @@ module.exports = (app, resource, mongooseModel, accessToken) ->
             .expect(409)
             .expect(message: 'Conflict', status: 409)
             .end(done)
+    .then null, logger.error
