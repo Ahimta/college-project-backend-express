@@ -40,6 +40,7 @@ module.exports.course = makeValidator form(
 
 module.exports.supervisorAccount = makeAccountable('supervisor_account')
 module.exports.recruiterAccount  = makeAccountable('recruiter_account')
+module.exports.studentAccount    = makeAccountable('student_account')
 module.exports.adminAccount      = makeAccountable('admin_account')
 
 module.exports.session = makeValidator form(

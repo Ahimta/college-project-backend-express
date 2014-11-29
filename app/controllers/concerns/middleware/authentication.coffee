@@ -29,5 +29,7 @@ assertAuthorizedMiddleware = (role=null) ->
 
 module.exports.assertAuthorized = assertAuthorizedMiddleware()
 
-module.exports.assertRecruiter = assertAuthorizedMiddleware('recruiter')
-module.exports.assertAdmin     = assertAuthorizedMiddleware('admin')
+module.exports.assertSupervisor = assertAuthorizedMiddleware('supervisor')
+module.exports.assertRecruiter  = assertAuthorizedMiddleware('recruiter')
+module.exports.assertStudent    = assertAuthorizedMiddleware('student')
+module.exports.assertAdmin      = assertAuthorizedMiddleware('admin')

@@ -2,8 +2,8 @@ mongoose = require('mongoose')
 plugins  = require('./concerns/plugins')
 
 schema = new mongoose.Schema
-  collegial_number: {type: String, unique: true}
-  specialization: String
+  collegial_number: {type: String, required: false, unique: true, sparse: true}
+  specialization: {type: String, required: false}
   teacher_id:
     type: mongoose.Schema.Types.ObjectId
     ref: 'TeacherAccount'

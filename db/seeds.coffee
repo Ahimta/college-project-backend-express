@@ -2,20 +2,38 @@ config = require('config')
 
 mongoose = require('mongoose')
 logger   = require config.get('paths.logger')
+_        = require('lodash')
 Q        = require('q')
 
 accountConstructor = require('../app/constructors').account
 
-RecruiterAccount = mongoose.model('RecruiterAccount')
-AdminAccount     = mongoose.model('AdminAccount')
+SupervisorAccount = mongoose.model('SupervisorAccount')
+RecruiterAccount  = mongoose.model('RecruiterAccount')
+StudentAccount    = mongoose.model('StudentAccount')
+AdminAccount      = mongoose.model('AdminAccount')
 
-recruiterAccount =
-  username: 'recruiter'
-  password: 'recruiter'
+accounts =
+  supervisor:
+    username: 'supervisor'
+    password: 'supervisor'
 
-adminAccount =
-  username: 'admin'
-  password: 'admin'
+  recruiter:
+    username: 'recruiter'
+    password: 'recruiter'
+
+  student:
+    username: 'student'
+    password: 'student'
+
+  admin:
+    username: 'admin'
+    password: 'admin'
+
+models =
+  supervisor: SupervisorAccount
+  recruiter: RecruiterAccount
+  student: StudentAccount
+  admin: AdminAccount
 
 createAccuount = (model, account) ->
   Q(accountConstructor(account))
@@ -23,5 +41,6 @@ createAccuount = (model, account) ->
       model.update({username: persistableAccount.username}, persistableAccount, {upsert: true}).exec()
     .then null, logger.error
 
-createAccuount(RecruiterAccount, recruiterAccount)
-createAccuount(AdminAccount, adminAccount)
+_.forEach accounts, (account, role) ->
+  model = models[role]
+  createAccuount(model, account)

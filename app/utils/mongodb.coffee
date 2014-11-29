@@ -3,16 +3,15 @@ config   = require('config')
 _        = require('lodash')
 Q        = require('q')
 
-modelsPath = config.get('paths.models')
-
 security = require('./security')
 
-AccessToken = require(modelsPath + '/access_token')
+AccessToken = require(config.get('paths.models') + '/access_token')
 
 ACCOUNTS_MODELS =
-  supervisor: require(modelsPath + '/supervisor_account')
-  recruiter: require(modelsPath + '/recruiter_account')
-  admin: require(modelsPath + '/admin_account')
+  supervisor: require(config.get('paths.models') + '/supervisor_account')
+  recruiter:  require(config.get('paths.models') + '/recruiter_account')
+  student:    require(config.get('paths.models') + '/student_account')
+  admin:      require(config.get('paths.models') + '/admin_account')
 
 
 modelForRole = module.exports.modelForRole = (role) ->

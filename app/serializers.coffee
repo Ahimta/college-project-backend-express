@@ -12,6 +12,7 @@ accountSerializer = (account) ->
 module.exports =
   supervisorAccount: accountSerializer
   recruiterAccount: accountSerializer
+  studentAccount: accountSerializer
   adminAccount: accountSerializer
   jobRequest: baseSerializer
   account: accountSerializer

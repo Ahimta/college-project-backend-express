@@ -10,12 +10,14 @@ app         = require(config.get('paths.app'))
 
 SupervisorAccount = require(config.get('paths.models') + '/supervisor_account')
 RecruiterAccount  = require(config.get('paths.models') + '/recruiter_account')
+StudentAccount    = require(config.get('paths.models') + '/student_account')
 AdminAccount      = require(config.get('paths.models') + '/admin_account')
 AccessToken       = require(config.get('paths.models') + '/access_token')
 
 accountsModels =
   supervisor: SupervisorAccount
   recruiter: RecruiterAccount
+  student: StudentAccount
   admin: AdminAccount
 
 resource = '/api/v0/sessions'
