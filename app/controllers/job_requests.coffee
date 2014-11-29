@@ -9,7 +9,7 @@ JobRequest = require("#{config.get('paths.models')}/job_request")
 router     = express.Router()
 hooks      = require('./concerns/hooks').jobRequest
 
-jobRequestValidator = require('./concerns/middleware/validators').jobRequestValidator
+jobRequestValidator = require('./concerns/middleware/validators').jobRequest
 controllersUtils    = require(config.get('paths.utils') + '/controllers')
 assertRecruiter     = require('./concerns/middleware/authentication').assertRecruiter
 simpleCrud          = require('./concerns/shared_controllers/simple_crud')

@@ -10,6 +10,7 @@ accountConstrouctor = (account) ->
       password: passwordHash
 
 module.exports =
+  supervisorAccount: accountConstrouctor
   recruiterAccount: accountConstrouctor
   adminAccount: accountConstrouctor
   account: accountConstrouctor

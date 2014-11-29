@@ -5,7 +5,7 @@ schema =
     type: String
     unique: true
   user_role:
-    enum: ['recruiter', 'admin']
+    enum: ['supervisor', 'recruiter', 'admin']
     required: true
     type: String
   user_id:

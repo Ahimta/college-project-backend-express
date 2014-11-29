@@ -8,11 +8,13 @@ specHelpers = require('./support/spec_helpers')
 security    = require(config.get('paths.utils') + '/security')
 app         = require(config.get('paths.app'))
 
-RecruiterAccount = require(config.get('paths.models') + '/recruiter_account')
-AdminAccount     = require(config.get('paths.models') + '/admin_account')
-AccessToken      = require(config.get('paths.models') + '/access_token')
+SupervisorAccount = require(config.get('paths.models') + '/supervisor_account')
+RecruiterAccount  = require(config.get('paths.models') + '/recruiter_account')
+AdminAccount      = require(config.get('paths.models') + '/admin_account')
+AccessToken       = require(config.get('paths.models') + '/access_token')
 
 accountsModels =
+  supervisor: SupervisorAccount
   recruiter: RecruiterAccount
   admin: AdminAccount
 

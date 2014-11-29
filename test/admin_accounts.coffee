@@ -32,9 +32,7 @@ describe resource, ->
 
     describe 'As recruiter', ->
 
-      account = specHelpers.generateAccount()
-
-      specHelpers.login(RecruiterAccount, 'recruiter', account)
+      specHelpers.login(RecruiterAccount, 'recruiter', specHelpers.generateAccount())
         .get('access_token')
         .then (accessToken) ->
           restrictedCrudSpecs(app, resource, accessToken)
@@ -47,9 +45,7 @@ describe resource, ->
 
     describe 'As admin', ->
 
-      account = specHelpers.generateAccount()
-
-      specHelpers.login(AdminAccount, 'admin', account)
+      specHelpers.login(AdminAccount, 'admin', specHelpers.generateAccount())
         .get('access_token')
         .then (accessToken) ->
 

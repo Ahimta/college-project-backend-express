@@ -10,6 +10,7 @@ accountSerializer = (account) ->
   _.omit(baseSerializer(account), 'password')
 
 module.exports =
+  supervisorAccount: accountSerializer
   recruiterAccount: accountSerializer
   adminAccount: accountSerializer
   jobRequest: baseSerializer

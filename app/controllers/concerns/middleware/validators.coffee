@@ -19,7 +19,7 @@ makeAccountable = (name, fields=[]) ->
   finalForm = form(allFields...)
   makeValidator finalForm
 
-module.exports.jobRequestValidator = makeValidator form(
+module.exports.jobRequest = makeValidator form(
   field('job_request.specialization').required().notEmpty(),
   field('job_request.fullname').required().notEmpty(),
   field('job_request.address').required().notEmpty(),
@@ -38,11 +38,11 @@ module.exports.course = makeValidator form(
   field('course.name').required().notEmpty(),
   field('course.code').required().notEmpty())
 
-module.exports.adminAccount = makeAccountable('admin_account')
+module.exports.supervisorAccount = makeAccountable('supervisor_account')
+module.exports.recruiterAccount  = makeAccountable('recruiter_account')
+module.exports.adminAccount      = makeAccountable('admin_account')
 
-module.exports.recruiterAccountValidator = makeAccountable('recruiter_account')
-
-module.exports.sessionValidator = makeValidator form(
+module.exports.session = makeValidator form(
   field('username').required().notEmpty(),
   field('password').required().notEmpty(),
   field('role').required().notEmpty())

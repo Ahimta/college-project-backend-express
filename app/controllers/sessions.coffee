@@ -4,7 +4,7 @@ logger = require config.get('paths.logger')
 _      = require('lodash')
 
 assertAuthorized = require('./concerns/middleware/authentication').assertAuthorized
-sessionValidator = require('./concerns/middleware/validators').sessionValidator
+sessionValidator = require('./concerns/middleware/validators').session
 
 controllersUtils = require config.get('paths.utils') + '/controllers'
 mongodbUtils     = require config.get('paths.utils') + '/mongodb'

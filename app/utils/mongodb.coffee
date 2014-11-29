@@ -10,6 +10,7 @@ security = require('./security')
 AccessToken = require(modelsPath + '/access_token')
 
 ACCOUNTS_MODELS =
+  supervisor: require(modelsPath + '/supervisor_account')
   recruiter: require(modelsPath + '/recruiter_account')
   admin: require(modelsPath + '/admin_account')
 

@@ -3,7 +3,7 @@ config = require('config')
 RecruiterAccount = require(config.get('paths.models') + '/recruiter_account')
 router           = require('express').Router()
 
-accountValidator = require('./concerns/middleware/validators').recruiterAccountValidator
+accountValidator = require('./concerns/middleware/validators').recruiterAccount
 assertAdmin      = require('./concerns/middleware/authentication').assertAdmin
 simpleCrud       = require('./concerns/shared_controllers/simple_crud')
 
