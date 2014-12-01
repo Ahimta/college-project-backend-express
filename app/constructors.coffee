@@ -13,6 +13,7 @@ module.exports =
   supervisorAccount: accountConstrouctor
   recruiterAccount: accountConstrouctor
   studentAccount: accountConstrouctor
+  teacherAccount: accountConstrouctor
   adminAccount: accountConstrouctor
   account: accountConstrouctor
   jobRequest: (jobRequest) ->

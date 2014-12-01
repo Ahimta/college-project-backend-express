@@ -2,7 +2,7 @@ mongoose = require('mongoose')
 plugins  = require('./concerns/plugins')
 
 schema = new mongoose.Schema
-  specialization: {type: String, required: true}
+  specialization: {type: String, required: false}
   is_guide: {type: Boolean, default: false}
   students_ids:
     type: [mongoose.Schema.Types.ObjectId]

@@ -13,6 +13,7 @@ module.exports =
   supervisorAccount: accountSerializer
   recruiterAccount: accountSerializer
   studentAccount: accountSerializer
+  teacherAccount: accountSerializer
   adminAccount: accountSerializer
   jobRequest: baseSerializer
   account: accountSerializer

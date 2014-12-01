@@ -11,6 +11,7 @@ ACCOUNTS_MODELS =
   supervisor: require(config.get('paths.models') + '/supervisor_account')
   recruiter:  require(config.get('paths.models') + '/recruiter_account')
   student:    require(config.get('paths.models') + '/student_account')
+  teacher:    require(config.get('paths.models') + '/teacher_account')
   admin:      require(config.get('paths.models') + '/admin_account')
 
 
