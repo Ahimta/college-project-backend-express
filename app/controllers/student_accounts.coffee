@@ -13,6 +13,13 @@ serializer  = require(config.get('paths.serializers')).studentAccount
 module.exports = (app) ->
   app.use('/api/v0/student_accounts', router)
 
+router
+  .get '/without_guide', assertSupervisor, (req, res, next) ->
+    StudentAccount.find(teacher_id: {$eq: null}).exec()
+      .then (students) ->
+        res.send(student_accounts: students.map(serializer))
+      .then null, controllersUtils.mongooseErr(res, next)
+
 simpleCrud(router, StudentAccount, 'student_accounts', serializer, constructor)
   .destroy(assertSupervisor)
   .create([assertSupervisor, validator])

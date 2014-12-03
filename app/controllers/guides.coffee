@@ -11,6 +11,8 @@ serializers      = require(config.get('paths.serializers'))
 module.exports = (app) ->
   app.use('/api/v0/guides', router)
 
+addOrRemoveStudent = (studentCommand, teacherCommand) -> (req, res, next) ->
+
 router
   .get '/', (req, res, next) ->
     TeacherAccount.find(is_guide: true).exec()
@@ -30,7 +32,29 @@ router
       .then (guide) ->
         return controllersUtils.notFound(res) unless guide
 
-        StudentAccount.find(_id: {$in: guide.student_ids}).exec()
+        StudentAccount.find(_id: {$in: guide.students_ids}).exec()
           .then (students) ->
             res.send(student_accounts: students.map(serializers.studentAccount))
+      .then null, controllersUtils.mongooseErr(res, next)
+
+  .put '/:id/add_student/:studentId', (req, res, next) ->
+    studentId = req.params.studentId
+    teacherId = req.params.teacherId
+
+    TeacherAccount.findOne(_id: teacherId, is_guide: true, students_ids: {$ne: studentId}).exec()
+      .then (guide) ->
+        return controllersUtils.notFound(res) unless guide
+        StudentAccount.findByIdAndUpdate(studentId, teacher_id: teacherId).exec()
+          .then (student) ->
+            return controllersUtils.notFound(res) unless student
+            guide.update($addToSet: {students_ids: studentId}).exec()
+              .then (updatedGuide) ->
+                if updatedGuide
+                  res.send
+                    student_account: serializers.studentAccount(student)
+                    teacher_account: serializers.teacherAccount(updatedGuide)
+                else
+                  controllersUtils.notFound(res)
+              .then null, controllersUtils.mongooseErr(res, next)
+          .then null, controllersUtils.mongooseErr(res, next)
       .then null, controllersUtils.mongooseErr(res, next)
