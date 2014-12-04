@@ -11,7 +11,30 @@ serializers      = require(config.get('paths.serializers'))
 module.exports = (app) ->
   app.use('/api/v0/guides', router)
 
-addOrRemoveStudent = (studentCommand, teacherCommand) -> (req, res, next) ->
+addOrRemoveStudent = (add) -> (req, res, next) ->
+  studentId = req.params.studentId
+  teacherId = req.params.teacherId
+
+  studentCommand = if add then {teacher_id: teacherId} else {$unset: {teacher_id: true}}
+  teacherCommand = if add then {$addToSet: {students_ids: studentId}} else {$removeFromSet: {students_ids: studentId}}
+
+  TeacherAccount.findOne(_id: teacherId, is_guide: true).exec()
+    .then (guide) ->
+      return controllersUtils.notFound(res) unless guide
+      StudentAccount.findByIdAndUpdate(studentId, studentCommand).exec()
+        .then (student) ->
+          return controllersUtils.notFound(res) unless student
+          guide.update(teacherCommand).exec()
+            .then (updatedGuide) ->
+              if updatedGuide
+                res.send
+                  student_account: serializers.studentAccount(student)
+                  teacher_account: serializers.teacherAccount(updatedGuide)
+              else
+                controllersUtils.notFound(res)
+            .then null, controllersUtils.mongooseErr(res, next)
+        .then null, controllersUtils.mongooseErr(res, next)
+    .then null, controllersUtils.mongooseErr(res, next)
 
 router
   .get '/', (req, res, next) ->
@@ -37,24 +60,5 @@ router
             res.send(student_accounts: students.map(serializers.studentAccount))
       .then null, controllersUtils.mongooseErr(res, next)
 
-  .put '/:id/add_student/:studentId', (req, res, next) ->
-    studentId = req.params.studentId
-    teacherId = req.params.teacherId
-
-    TeacherAccount.findOne(_id: teacherId, is_guide: true, students_ids: {$ne: studentId}).exec()
-      .then (guide) ->
-        return controllersUtils.notFound(res) unless guide
-        StudentAccount.findByIdAndUpdate(studentId, teacher_id: teacherId).exec()
-          .then (student) ->
-            return controllersUtils.notFound(res) unless student
-            guide.update($addToSet: {students_ids: studentId}).exec()
-              .then (updatedGuide) ->
-                if updatedGuide
-                  res.send
-                    student_account: serializers.studentAccount(student)
-                    teacher_account: serializers.teacherAccount(updatedGuide)
-                else
-                  controllersUtils.notFound(res)
-              .then null, controllersUtils.mongooseErr(res, next)
-          .then null, controllersUtils.mongooseErr(res, next)
-      .then null, controllersUtils.mongooseErr(res, next)
+  .put '/:id/remove_student/:studentId', addOrRemoveStudent(false)
+  .put '/:id/add_student/:studentId', addOrRemoveStudent(true)
