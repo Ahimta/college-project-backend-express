@@ -1,8 +1,10 @@
 express = require('express')
 config  = require('config')
+logger  = require config.get('paths.logger')
 router  = express.Router()
 
 assertSupervisor = require('./concerns/middleware/authentication').assertSupervisor
+controllersUtils = require (config.get('paths.utils') + '/controllers')
 StudentAccount   = require (config.get('paths.models') + '/student_account')
 simpleCrud       = require('./concerns/shared_controllers/simple_crud')
 validator        = require('./concerns/middleware/validators').studentAccount
@@ -15,7 +17,7 @@ module.exports = (app) ->
 
 router
   .get '/without_guide', assertSupervisor, (req, res, next) ->
-    StudentAccount.find(teacher_id: {$eq: null}).exec()
+    StudentAccount.find(teacher_id: {$exists: true}).exec()
       .then (students) ->
         res.send(student_accounts: students.map(serializer))
       .then null, controllersUtils.mongooseErr(res, next)
