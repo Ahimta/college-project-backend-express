@@ -7,6 +7,7 @@ schema = new mongoose.Schema
   teacher_id:
     type: mongoose.Schema.Types.ObjectId
     ref: 'TeacherAccount'
+    index: true
   courses_ids:
     type: [mongoose.Schema.Types.ObjectId]
     ref: 'Course'

@@ -16,23 +16,19 @@ addOrRemoveStudent = (add) -> (req, res, next) ->
   teacherId = req.params.teacherId
 
   studentCommand = if add then {teacher_id: teacherId} else {$unset: {teacher_id: true}}
-  teacherCommand = if add then {$addToSet: {students_ids: studentId}} else {$removeFromSet: {students_ids: studentId}}
 
   TeacherAccount.findOne(_id: teacherId, is_guide: true).exec()
     .then (guide) ->
       return controllersUtils.notFound(res) unless guide
-      StudentAccount.findByIdAndUpdate(studentId, studentCommand).exec()
+      StudentAccount.findOneAndUpdate({_id: studentId, teacher_id: teacherId}, studentCommand)
+        .exec()
         .then (student) ->
-          return controllersUtils.notFound(res) unless student
-          guide.update(teacherCommand).exec()
-            .then (updatedGuide) ->
-              if updatedGuide
-                res.send
-                  student_account: serializers.studentAccount(student)
-                  teacher_account: serializers.teacherAccount(updatedGuide)
-              else
-                controllersUtils.notFound(res)
-            .then null, controllersUtils.mongooseErr(res, next)
+          if student
+            res.send
+              student_account: serializers.studentAccount(student)
+              teacher_account: serializers.teacherAccount(guide)
+          else
+            controllersUtils.notFound(res)
         .then null, controllersUtils.mongooseErr(res, next)
     .then null, controllersUtils.mongooseErr(res, next)
 
@@ -51,13 +47,17 @@ router
       .then null, controllersUtils.mongooseErr(res, next)
 
   .get '/:id/students', (req, res, next) ->
-    TeacherAccount.findOne(_id: req.params.id, is_guide: true).exec()
+    teacherId = req.params.id
+
+    TeacherAccount.findOne(_id: teacherId, is_guide: true).exec()
       .then (guide) ->
         return controllersUtils.notFound(res) unless guide
 
-        StudentAccount.find(_id: {$in: guide.students_ids}).exec()
+        StudentAccount.find(teacher_id: teacherId).exec()
           .then (students) ->
-            res.send(student_accounts: students.map(serializers.studentAccount))
+            res.send
+              student_accounts: students.map(serializers.studentAccount)
+              teacher_account: serializers.teacherAccount(guide)
       .then null, controllersUtils.mongooseErr(res, next)
 
   .put '/:id/remove_student/:studentId', addOrRemoveStudent(false)
