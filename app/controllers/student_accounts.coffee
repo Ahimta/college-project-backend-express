@@ -17,7 +17,7 @@ module.exports = (app) ->
 
 router
   .get '/without_guide', assertSupervisor, (req, res, next) ->
-    StudentAccount.find(teacher_id: {$exists: true}).exec()
+    StudentAccount.find(teacher_id: {$exists: false}).exec()
       .then (students) ->
         res.send(student_accounts: students.map(serializer))
       .then null, controllersUtils.mongooseErr(res, next)
