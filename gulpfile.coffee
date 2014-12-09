@@ -22,7 +22,7 @@ gulp.task 'test', ->
     console.log(stdout)
     console.log(stderr)
 
-gulp.task 'serve', ['serve:start'], ->
+gulp.task 'serve', ['server:start'], ->
   gulp.watch(globs, ['server:restart'])
 
 gulp.task 'watch', ['server:start', 'test'], ->
