@@ -3,7 +3,7 @@ plugins  = require('./concerns/plugins')
 
 schema = new mongoose.Schema
   specialization: {type: String, required: false}
-  is_guide: {type: Boolean, default: false}
+  is_guide: {type: Boolean, default: false, index: true}
   courses_ids:
     type: [mongoose.Schema.Types.ObjectId]
     ref: 'Course'

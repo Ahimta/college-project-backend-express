@@ -2,6 +2,7 @@ mongoose = require('mongoose')
 
 schema =
   access_token:
+    required: true
     type: String
     unique: true
   user_role:

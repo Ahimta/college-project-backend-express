@@ -7,7 +7,7 @@ schema = new mongoose.Schema
   degree:         {type: String, required: true}
   email:          {type: String, required: true}
   phone:          {type: String, required: true}
-  token: {type: String, unique: true}
+  token: {type: String, unique: true, required: false}
   files: [String]
   status:
     enum: ['pending', 'accepted', 'rejected']
