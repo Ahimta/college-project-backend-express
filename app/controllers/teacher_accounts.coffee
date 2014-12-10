@@ -14,14 +14,21 @@ serializer  = require(config.get('paths.serializers')).teacherAccount
 module.exports = (app) ->
   app.use('/api/v0/teacher_accounts', router)
 
-addOrRemoveGuide = (boolValue) -> (req, res, next) ->
-  TeacherAccount.findByIdAndUpdate(req.params.id, {is_guide: boolValue}).exec()
+addOrRemoveGuide = (isAdd) -> (req, res, next) ->
+  TeacherAccount.findByIdAndUpdate(req.params.id, {is_guide: isAdd}).exec()
     .then (teacher) ->
-      if teacher then res.send(teacher_account: serializers.teacherAccount(teacher))
+      if teacher then res.send(teacher_account: serializer(teacher))
       else controllersUtils.notFound(res)
     .then null, controllersUtils.mongooseErr(res, next)
 
 router
+  .get '/not_guides', assertSupervisor, (req, res, next) ->
+    TeacherAccount.find({is_guide: false}).exec()
+      .then (teachers) ->
+        res.send
+          teacher_accounts: teachers.map(serializer)
+      .then null, controllersUtils.mongooseErr(res, next)
+
   .put '/:id/add_to_guides', assertSupervisor, addOrRemoveGuide(true)
   .put '/:id/remove_from_guides', assertSupervisor, addOrRemoveGuide(false)
 

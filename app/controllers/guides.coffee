@@ -13,14 +13,15 @@ module.exports = (app) ->
 
 addOrRemoveStudent = (add) -> (req, res, next) ->
   studentId = req.params.studentId
-  teacherId = req.params.teacherId
+  teacherId = req.params.id
 
   studentCommand = if add then {teacher_id: teacherId} else {$unset: {teacher_id: true}}
+  studentQuery   = if add then {_id: studentId} else {_id: studentId, teacher_id: teacherId}
 
   TeacherAccount.findOne(_id: teacherId, is_guide: true).exec()
     .then (guide) ->
       return controllersUtils.notFound(res) unless guide
-      StudentAccount.findOneAndUpdate({_id: studentId, teacher_id: teacherId}, studentCommand)
+      StudentAccount.findOneAndUpdate(studentQuery, studentCommand)
         .exec()
         .then (student) ->
           if student

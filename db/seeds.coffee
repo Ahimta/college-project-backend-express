@@ -15,22 +15,27 @@ AdminAccount      = mongoose.model('AdminAccount')
 
 accounts =
   supervisor:
+    fullname: 'supervisor'
     username: 'supervisor'
     password: 'supervisor'
 
   recruiter:
+    fullname: 'recruiter'
     username: 'recruiter'
     password: 'recruiter'
 
   student:
+    fullname: 'student'
     username: 'student'
     password: 'student'
 
   teacher:
+    fullname: 'teacher'
     username: 'teacher'
     password: 'teacher'
 
   admin:
+    fullname: 'admin'
     username: 'admin'
     password: 'admin'
 
@@ -53,6 +58,7 @@ _.forEach accounts, (account, role) ->
   createAccuount(model, account)
 
 createAccuount models.teacher,
+  fullname: 'guide'
   username: 'guide'
   password: 'guide'
   is_guide: true
