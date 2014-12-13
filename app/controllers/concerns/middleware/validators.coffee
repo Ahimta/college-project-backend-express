@@ -13,6 +13,9 @@ makeAccountable = (name, fields=[]) ->
   defaultFields = [
     field(name + '.username').required().notEmpty().toLower()
     field(name + '.password').required().notEmpty()
+    field(name + '.fullname')
+    field(name + '.phone')
+    field(name + '.email')
   ]
 
   allFields = defaultFields.concat(fields)
@@ -40,7 +43,11 @@ module.exports.course = makeValidator form(
 
 module.exports.supervisorAccount = makeAccountable('supervisor_account')
 module.exports.recruiterAccount  = makeAccountable('recruiter_account')
-module.exports.studentAccount    = makeAccountable('student_account')
+module.exports.studentAccount    = makeAccountable 'student_account',
+  [
+    field('student_account.collegial_number')
+    field('student_account.specialization')
+  ]
 module.exports.teacherAccount    = makeAccountable('teacher_account')
 module.exports.adminAccount      = makeAccountable('admin_account')
 
