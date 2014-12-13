@@ -11,6 +11,7 @@ schema = new mongoose.Schema
   courses_ids:
     type: [mongoose.Schema.Types.ObjectId]
     ref: 'Course'
+    index: true
     default: []
 
 schema.plugin(plugins.accountable)

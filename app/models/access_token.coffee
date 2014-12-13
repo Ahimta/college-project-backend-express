@@ -11,6 +11,7 @@ schema =
     type: String
   user_id:
     type: mongoose.Schema.Types.ObjectId
+    index: true
     required: true
 
 module.exports = mongoose.model('AccessToken', schema)

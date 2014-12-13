@@ -6,6 +6,7 @@ schema = new mongoose.Schema
   is_guide: {type: Boolean, default: false, index: true}
   courses_ids:
     type: [mongoose.Schema.Types.ObjectId]
+    index: true
     ref: 'Course'
     default: []
 
