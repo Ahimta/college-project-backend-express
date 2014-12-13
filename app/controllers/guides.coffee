@@ -15,8 +15,8 @@ addOrRemoveStudent = (add) -> (req, res, next) ->
   studentId = req.params.studentId
   teacherId = req.params.id
 
-  studentCommand = if add then {teacher_id: teacherId} else {$unset: {teacher_id: true}}
-  studentQuery   = if add then {_id: studentId} else {_id: studentId, teacher_id: teacherId}
+  studentCommand = if add then {guide_id: teacherId} else {$unset: {guide_id: true}}
+  studentQuery   = if add then {_id: studentId} else {_id: studentId, guide_id: teacherId}
 
   TeacherAccount.findOne(_id: teacherId, is_guide: true).exec()
     .then (guide) ->
@@ -54,12 +54,12 @@ router
       .then (guide) ->
         return controllersUtils.notFound(res) unless guide
 
-        StudentAccount.find(teacher_id: teacherId).exec()
+        StudentAccount.find(guide_id: teacherId).exec()
           .then (students) ->
             res.send
               student_accounts: students.map(serializers.studentAccount)
               teacher_account: serializers.teacherAccount(guide)
       .then null, controllersUtils.mongooseErr(res, next)
 
-  .put '/:id/remove_student/:studentId', addOrRemoveStudent(false)
-  .put '/:id/add_student/:studentId', addOrRemoveStudent(true)
+  .put '/:id/students/:studentId/remove', addOrRemoveStudent(false)
+  .put '/:id/students/:studentId/add', addOrRemoveStudent(true)

@@ -48,7 +48,11 @@ module.exports.studentAccount    = makeAccountable 'student_account',
     field('student_account.collegial_number')
     field('student_account.specialization')
   ]
-module.exports.teacherAccount    = makeAccountable('teacher_account')
+module.exports.teacherAccount    = makeAccountable 'teacher_account',
+  [
+    field('teacher_account.specialization')
+    field('teacher_account.is_guide')
+  ]
 module.exports.adminAccount      = makeAccountable('admin_account')
 
 module.exports.session = makeValidator form(

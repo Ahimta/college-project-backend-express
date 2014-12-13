@@ -1,5 +1,10 @@
 module.exports =
-  blacklist: ['id']
+  blacklist: [
+    'id'
+    'fullname'
+    'email'
+    'phone'
+  ]
   invalid: [
     {
       errorKeys: [

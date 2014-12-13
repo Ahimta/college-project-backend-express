@@ -3,17 +3,13 @@ plugins  = require('./concerns/plugins')
 
 schema = new mongoose.Schema
   collegial_number: {type: String, required: false, unique: true, sparse: true}
-  specialization: {type: String, required: false}
-  teacher_id:
+  guide_id:
     type: mongoose.Schema.Types.ObjectId
     ref: 'TeacherAccount'
     index: true
-  courses_ids:
-    type: [mongoose.Schema.Types.ObjectId]
-    ref: 'Course'
-    index: true
-    default: []
 
-schema.plugin(plugins.accountable)
+schema
+  .plugin(plugins.accountable)
+  .plugin(plugins.coursable)
 
 module.exports = mongoose.model('StudentAccount', schema)

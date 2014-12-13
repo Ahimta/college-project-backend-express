@@ -3,11 +3,10 @@ logger = require config.get('paths.logger')
 _      = require('lodash')
 
 restrictedCrudSpecs = require('./shared_specs/restricted_crud')
-accountableSpecs    = require('./shared_specs/accountable')
 simpleCrudSpecs     = require('./shared_specs/simple_crud')
 specHelpers         = require('./support/spec_helpers')
-serializer          = require(config.get('paths.serializers')).teacherAccount
-factories           = require(config.get('paths.factories') + '/teacher_accounts')
+serializer          = require(config.get('paths.serializers')).course
+factories           = require(config.get('paths.factories') + '/courses')
 app                 = require(config.get('paths.app'))
 
 SupervisorAccount = require(config.get('paths.models') + '/supervisor_account')
@@ -15,11 +14,11 @@ RecruiterAccount  = require(config.get('paths.models') + '/recruiter_account')
 StudentAccount    = require(config.get('paths.models') + '/student_account')
 TeacherAccount    = require(config.get('paths.models') + '/teacher_account')
 AdminAccount      = require(config.get('paths.models') + '/admin_account')
+Course            = require(config.get('paths.models') + '/course')
 agent             = require('supertest')(app)
 
-resource = '/api/v0/teacher_accounts'
+resource = '/api/v0/courses'
 
-#TODO: test creating an account through the API and then authenticating with the account
 describe resource, ->
 
   describe 'Not logged in', ->
@@ -72,12 +71,12 @@ describe resource, ->
             .get('access_token')
             .then (accessToken) ->
 
-              simpleCrudSpecs(app, resource, TeacherAccount, factories, accessToken, serializer)
+              simpleCrudSpecs(app, resource, Course, factories, accessToken, serializer)
                 .destroy()
                 .create()
                 .update()
                 .index()
                 .show()
 
-              accountableSpecs(app, resource, TeacherAccount, accessToken)
+              accountableSpecs(app, resource, Course, accessToken)
             .then null, logger.error

@@ -13,6 +13,7 @@ app                 = require(config.get('paths.app'))
 SupervisorAccount = require(config.get('paths.models') + '/supervisor_account')
 RecruiterAccount  = require(config.get('paths.models') + '/recruiter_account')
 StudentAccount    = require(config.get('paths.models') + '/student_account')
+TeacherAccount    = require(config.get('paths.models') + '/teacher_account')
 AdminAccount      = require(config.get('paths.models') + '/admin_account')
 agent             = require('supertest')(app)
 
@@ -37,6 +38,8 @@ describe resource, ->
 
       samples =
         recruiter: RecruiterAccount
+        student: StudentAccount
+        teacher: TeacherAccount
         admin: AdminAccount
 
       _.forEach samples, (model, role) ->

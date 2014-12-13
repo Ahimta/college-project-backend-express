@@ -6,7 +6,9 @@ assertSupervisor = require('./concerns/middleware/authentication').assertSupervi
 controllersUtils = require (config.get('paths.utils') + '/controllers')
 TeacherAccount   = require (config.get('paths.models') + '/teacher_account')
 simpleCrud       = require('./concerns/shared_controllers/simple_crud')
+coursable        = require('./concerns/shared_controllers/coursable')
 validator        = require('./concerns/middleware/validators').teacherAccount
+Course           = require (config.get('paths.models') + '/course')
 
 constructor = require(config.get('paths.constructors')).teacherAccount
 serializer  = require(config.get('paths.serializers')).teacherAccount
@@ -29,8 +31,10 @@ router
           teacher_accounts: teachers.map(serializer)
       .then null, controllersUtils.mongooseErr(res, next)
 
-  .put '/:id/add_to_guides', assertSupervisor, addOrRemoveGuide(true)
   .put '/:id/remove_from_guides', assertSupervisor, addOrRemoveGuide(false)
+  .put '/:id/add_to_guides', assertSupervisor, addOrRemoveGuide(true)
+
+coursable(router, TeacherAccount, 'teacher_account', serializer: serializer)
 
 simpleCrud(router, TeacherAccount, 'teacher_accounts', serializer, constructor)
   .destroy(assertSupervisor)

@@ -17,3 +17,4 @@ module.exports =
   adminAccount: accountSerializer
   jobRequest: baseSerializer
   account: accountSerializer
+  course: baseSerializer

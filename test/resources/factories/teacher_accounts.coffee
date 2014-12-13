@@ -1,5 +1,15 @@
 module.exports =
-  blacklist: ['id', 'courses_ids', 'students_ids', 'is_guide']
+  blacklist: [
+    'id'
+    'specialization'
+    'courses_ids'
+    'students_ids'
+    'is_guide'
+
+    'fullname'
+    'email'
+    'phone'
+  ]
   invalid: [
     {
       errorKeys: [

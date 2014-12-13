@@ -12,6 +12,8 @@ app                 = require(config.get('paths.app'))
 
 SupervisorAccount = require(config.get('paths.models') + '/supervisor_account')
 RecruiterAccount  = require(config.get('paths.models') + '/recruiter_account')
+StudentAccount    = require(config.get('paths.models') + '/student_account')
+TeacherAccount    = require(config.get('paths.models') + '/teacher_account')
 AdminAccount      = require(config.get('paths.models') + '/admin_account')
 agent             = require('supertest')(app)
 
@@ -37,6 +39,8 @@ describe resource, ->
       samples =
         supervisor: SupervisorAccount
         recruiter: RecruiterAccount
+        student: StudentAccount
+        teacher: TeacherAccount
 
       _.forEach samples, (model, role) ->
 
@@ -56,18 +60,23 @@ describe resource, ->
 
     describe 'Authorized', ->
 
-      describe 'As admin', ->
+      samples =
+        admin: AdminAccount
 
-        specHelpers.login(AdminAccount, 'admin', specHelpers.generateAccount())
-          .get('access_token')
-          .then (accessToken) ->
+      _.forEach samples, (model, role) ->
 
-            simpleCrudSpecs(app, resource, SupervisorAccount, factories, accessToken, serializer)
-              .destroy()
-              .create()
-              .update()
-              .index()
-              .show()
+        describe "As #{role}", ->
 
-            accountableSpecs(app, resource, SupervisorAccount, accessToken)
-          .then null, logger.error
+          specHelpers.login(model, role, specHelpers.generateAccount())
+            .get('access_token')
+            .then (accessToken) ->
+
+              simpleCrudSpecs(app, resource, SupervisorAccount, factories, accessToken, serializer)
+                .destroy()
+                .create()
+                .update()
+                .index()
+                .show()
+
+              accountableSpecs(app, resource, SupervisorAccount, accessToken)
+            .then null, logger.error
