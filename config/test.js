@@ -1,7 +1,9 @@
 var path = require('path');
 
 module.exports = {
-  db: 'mongodb://localhost/college-project-backend-express-test',
+  db: {
+    database: 'college-project-backend-express-test'
+  },
   port: 3001,
   paths: {
     factories: path.resolve('./test/resources/factories'),

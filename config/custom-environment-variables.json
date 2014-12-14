@@ -1,7 +1,10 @@
 {
-  "port": "PORT",
-  "db": "DB_URL",
+  "port": "OPENSHIFT_NODEJS_PORT",
+  "db": {
+    "url": "OPENSHIFT_MONGODB_DB_URL"
+  },
+  "ip": "OPENSHIFT_NODEJS_IP",
   "paths": {
-    "uploads": "CLOUD_DIR"
+    "uploads": "OPENSHIFT_DATA_DIR"
   }
 }

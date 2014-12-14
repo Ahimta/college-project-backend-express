@@ -12,7 +12,7 @@ fse.ensureFile(config.get('paths.log'), function (err) {
   }
 });
 
-mongoose.connect(config.get('db'));
+mongoose.connect(config.get('db.url') + '/' + config.get('db.database'));
 var db = mongoose.connection;
 db.on('error', function () {
   throw new Error('unable to connect to database at ' + config.get('db'));
@@ -22,6 +22,6 @@ var app = module.exports = express();
 
 require('./express/boot')(app);
 
-app.listen(config.get('port'));
+app.listen(config.get('port'), config.get('ip'));
 
 require('./db/seeds');

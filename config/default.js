@@ -1,7 +1,12 @@
 path = require('path');
 
 module.exports = {
+  db: {
+    database: 'college-project-backend-express-development',
+    url: 'mongodb://localhost'
+  },
   root: path.resolve('./'),
+  ip: 'localhost',
   paths: {
     constructors: path.resolve('./app/constructors'),
     controllers: path.resolve('./app/controllers'),
@@ -16,6 +21,5 @@ module.exports = {
   app: {
     name: 'college-project-backend-express'
   },
-  db: 'mongodb://localhost/college-project-backend-express-development',
   port: 3000
 };
