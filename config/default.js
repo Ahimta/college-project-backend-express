@@ -3,7 +3,7 @@ path = require('path');
 module.exports = {
   db: {
     database: 'college-project-backend-express-development',
-    url: 'mongodb://localhost'
+    url: 'mongodb://localhost/'
   },
   root: path.resolve('./'),
   ip: 'localhost',
