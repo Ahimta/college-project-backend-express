@@ -9,10 +9,10 @@ makeValidator = (validator) ->
       else res.status(400).send(req.form.getErrors())
   ]
 
-makeAccountable = (name, fields=[]) ->
+makeAccountable = (name, fields=[], update=false) ->
   defaultFields = [
     field(name + '.username').required().notEmpty().toLower()
-    field(name + '.password').required().notEmpty()
+    field(name + '.password')
     field(name + '.fullname')
     field(name + '.phone')
     field(name + '.email')

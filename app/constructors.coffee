@@ -1,13 +1,17 @@
 config = require('config')
+logger = require config.get('paths.logger')
 
 security = require(config.get('paths.utils') + '/security')
 _        = require('lodash')
 
 accountConstrouctor = (account) ->
-  security.hash(account.password).then (passwordHash) ->
-    _.merge _.clone(account),
-      username: account.username.toLowerCase()
-      password: passwordHash
+  if account.password
+    security.hash(account.password).then (passwordHash) ->
+      _.merge _.clone(account),
+        username: account.username.toLowerCase()
+        password: passwordHash
+  else
+    _.omit(_.clone(account), 'password')
 
 module.exports =
   supervisorAccount: accountConstrouctor

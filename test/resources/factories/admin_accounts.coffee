@@ -9,7 +9,6 @@ module.exports =
     {
       errorKeys: [
         'admin_account.username'
-        'admin_account.password'
       ]
       form:
         admin_account:
@@ -22,14 +21,6 @@ module.exports =
       form:
         admin_account:
           password: '77'
-    }
-    {
-      errorKeys: [
-        'admin_account.password'
-      ]
-      form:
-        admin_account:
-          username: 'username77'
     }
   ]
   valid: [

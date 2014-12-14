@@ -12,7 +12,6 @@ module.exports =
     {
       errorKeys: [
         'student_account.username'
-        'student_account.password'
       ]
       form:
         student_account:
@@ -25,14 +24,6 @@ module.exports =
       form:
         student_account:
           password: '77'
-    }
-    {
-      errorKeys: [
-        'student_account.password'
-      ]
-      form:
-        student_account:
-          username: 'username77'
     }
   ]
   valid: [

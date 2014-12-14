@@ -9,7 +9,6 @@ module.exports =
     {
       errorKeys: [
         'supervisor_account.username'
-        'supervisor_account.password'
       ]
       form:
         supervisor_account:
@@ -22,14 +21,6 @@ module.exports =
       form:
         supervisor_account:
           password: '77'
-    }
-    {
-      errorKeys: [
-        'supervisor_account.password'
-      ]
-      form:
-        supervisor_account:
-          username: 'username77'
     }
   ]
   valid: [

@@ -12,6 +12,7 @@ RecruiterAccount  = mongoose.model('RecruiterAccount')
 StudentAccount    = mongoose.model('StudentAccount')
 TeacherAccount    = mongoose.model('TeacherAccount')
 AdminAccount      = mongoose.model('AdminAccount')
+Course            = mongoose.model('Course')
 
 accounts =
   supervisor:
@@ -62,3 +63,9 @@ createAccuount models.teacher,
   username: 'guide'
   password: 'guide'
   is_guide: true
+
+course =
+  name: 'Introduction to Computer Science I'
+  code: 'CS50'
+
+Course.update({code: course.code}, course, upsert: true).exec()

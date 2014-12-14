@@ -9,7 +9,6 @@ module.exports =
     {
       errorKeys: [
         'recruiter_account.username'
-        'recruiter_account.password'
       ]
       form:
         recruiter_account:
@@ -22,14 +21,6 @@ module.exports =
       form:
         recruiter_account:
           password: '77'
-    }
-    {
-      errorKeys: [
-        'recruiter_account.password'
-      ]
-      form:
-        recruiter_account:
-          username: 'username77'
     }
   ]
   valid: [

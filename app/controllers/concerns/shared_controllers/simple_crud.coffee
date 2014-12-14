@@ -45,8 +45,9 @@ module.exports = (router, model, resource, serializer, constructor=_.identity, h
 
   update: helper (middleware) ->
     router.put '/:id', middleware, (req, res, next) ->
-
-      model.findByIdAndUpdate(req.params.id, req.form[name]).exec()
+      Q(constructor(req.form[name]))
+        .then (constructedDoc) ->
+          model.findByIdAndUpdate(req.params.id, constructedDoc).exec()
         .then (record) ->
           if record then res.send(getResponseBody(serializer(record)))
           else controllersUtils.notFound(res)

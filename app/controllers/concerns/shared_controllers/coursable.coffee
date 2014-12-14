@@ -3,6 +3,8 @@ logger = require config.get('paths.logger')
 _      = require('lodash')
 
 assertSupervisor = require('../middleware/authentication').assertSupervisor
+controllersUtils = require (config.get('paths.utils') + '/controllers')
+serializers      = require(config.get('paths.serializers'))
 Course           = require("#{config.get('paths.models')}/course")
 
 module.exports = (router, model, entityName, options={serializer: _.identity}) ->
@@ -20,7 +22,7 @@ module.exports = (router, model, entityName, options={serializer: _.identity}) -
     courseId  = req.params.courseId
 
     studentCommand = if isAdd then {$addToSet: {courses_ids: courseId}}
-    else {$removeFromSet: {courses_ids: courseId}}
+    else {$pull: {courses_ids: courseId}}
 
     Course.findById(courseId).exec()
       .then (course) ->
@@ -28,7 +30,7 @@ module.exports = (router, model, entityName, options={serializer: _.identity}) -
         model.findByIdAndUpdate(studentId, studentCommand).exec()
           .then (coursable) ->
             if coursable
-              res.send encapsulate(coursable, course: course)
+              res.send encapsulate(coursable, course: serializers.course(course))
             else
               controllersUtils.notFound(res)
           .then null, controllersUtils.mongooseErr(res, next)
@@ -45,7 +47,7 @@ module.exports = (router, model, entityName, options={serializer: _.identity}) -
 
           Course.find(courseQuery).exec()
             .then (courses) ->
-              res.send encapsulate(coursable, courses: courses)
+              res.send encapsulate(coursable, courses: courses.map(serializers.course))
             .then null, controllersUtils.mongooseErr(res, next)
         .then null, controllersUtils.mongooseErr(res, next)
 
