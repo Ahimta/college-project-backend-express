@@ -77,6 +77,4 @@ describe resource, ->
                 .update()
                 .index()
                 .show()
-
-              accountableSpecs(app, resource, Course, accessToken)
             .then null, logger.error

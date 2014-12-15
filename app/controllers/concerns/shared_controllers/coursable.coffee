@@ -51,10 +51,18 @@ module.exports = (router, model, entityName, options={serializer: _.identity}) -
             .then null, controllersUtils.mongooseErr(res, next)
         .then null, controllersUtils.mongooseErr(res, next)
 
-  router
-    .get '/:id/courses/not_current', assertSupervisor, coursesCurrentOrNot(false)
-    .get '/:id/courses/current', assertSupervisor, coursesCurrentOrNot(true)
-    .get '/:id/courses', assertSupervisor, coursesCurrentOrNot(true)
+  self = ->
+    module.exports(router, model, entityName, options)
 
-    .put '/:id/courses/:courseId/remove', assertSupervisor, addOrRemoveCourse(false)
-    .put '/:id/courses/:courseId/add', assertSupervisor, addOrRemoveCourse(true)
+  write: (middleware=[]) ->
+    router
+      .put '/:id/courses/:courseId/remove', middleware, addOrRemoveCourse(false)
+      .put '/:id/courses/:courseId/add', middleware, addOrRemoveCourse(true)
+    self()
+
+  read: (middleware=[]) ->
+    router
+      .get '/:id/courses/not_current', middleware, coursesCurrentOrNot(false)
+      .get '/:id/courses/current', middleware, coursesCurrentOrNot(true)
+      .get '/:id/courses', middleware, coursesCurrentOrNot(true)
+    self()

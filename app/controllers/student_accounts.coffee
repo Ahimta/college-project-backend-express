@@ -12,13 +12,11 @@ coursable        = require('./concerns/shared_controllers/coursable')
 validator        = require('./concerns/middleware/validators').studentAccount
 
 constructor = require(config.get('paths.constructors')).studentAccount
-serializers  = require(config.get('paths.serializers'))
+serializers = require(config.get('paths.serializers'))
 serializer  = require(config.get('paths.serializers')).studentAccount
 
 module.exports = (app) ->
   app.use('/api/v0/student_accounts', router)
-
-
 
 router
   .get '/without_guide', assertSupervisor, (req, res, next) ->
@@ -43,6 +41,8 @@ router
         .then null, controllersUtils.mongooseErr(res, next)
 
 coursable(router, StudentAccount, 'student_account', serializer: serializer)
+  .write(assertSupervisor)
+  .read(assertSupervisor)
 
 simpleCrud(router, StudentAccount, 'student_accounts', serializer, constructor)
   .destroy(assertSupervisor)

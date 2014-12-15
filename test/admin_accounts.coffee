@@ -1,5 +1,6 @@
 config = require('config')
 logger = require config.get('paths.logger')
+_      = require('lodash')
 
 restrictedCrudSpecs = require('./shared_specs/restricted_crud')
 accountableSpecs    = require('./shared_specs/accountable')
@@ -9,9 +10,12 @@ serializer          = require(config.get('paths.serializers')).adminAccount
 factories           = require(config.get('paths.factories') + '/admin_accounts')
 app                 = require(config.get('paths.app'))
 
-RecruiterAccount = require(config.get('paths.models') + '/recruiter_account')
-AdminAccount     = require(config.get('paths.models') + '/admin_account')
-agent            = require('supertest')(app)
+SupervisorAccount = require(config.get('paths.models') + '/supervisor_account')
+RecruiterAccount  = require(config.get('paths.models') + '/recruiter_account')
+TeacherAccount    = require(config.get('paths.models') + '/teacher_account')
+StudentAccount    = require(config.get('paths.models') + '/student_account')
+AdminAccount      = require(config.get('paths.models') + '/admin_account')
+agent             = require('supertest')(app)
 
 resource = '/api/v0/admin_accounts'
 
@@ -30,31 +34,45 @@ describe resource, ->
 
   describe 'Logged in', ->
 
-    describe 'As recruiter', ->
+    describe 'Not authorized', ->
+      samples =
+        supervisor: SupervisorAccount
+        recruiter:  RecruiterAccount
+        student:    StudentAccount
+        teacher:    TeacherAccount
 
-      specHelpers.login(RecruiterAccount, 'recruiter', specHelpers.generateAccount())
-        .get('access_token')
-        .then (accessToken) ->
-          restrictedCrudSpecs(app, resource, accessToken)
-            .destroy()
-            .create()
-            .update()
-            .index()
-            .show()
+      _.forEach samples, (model, role) ->
 
+        describe "As #{role}", ->
 
-    describe 'As admin', ->
+          specHelpers.login(model, role, specHelpers.generateAccount())
+            .get('access_token')
+            .then (accessToken) ->
+              restrictedCrudSpecs(app, resource, accessToken)
+                .destroy()
+                .create()
+                .update()
+                .index()
+                .show()
 
-      specHelpers.login(AdminAccount, 'admin', specHelpers.generateAccount())
-        .get('access_token')
-        .then (accessToken) ->
+    describe 'Authorized', ->
+      samples =
+        admin: AdminAccount
 
-          simpleCrudSpecs(app, resource, AdminAccount, factories, accessToken, serializer)
-            .destroy()
-            .create()
-            .update()
-            .index()
-            .show()
+      _.forEach samples, (model, role) ->
 
-          accountableSpecs(app, resource, AdminAccount, accessToken)
-        .then null, logger.error
+        describe "As #{role}", ->
+
+          specHelpers.login(model, role, specHelpers.generateAccount())
+            .get('access_token')
+            .then (accessToken) ->
+
+              simpleCrudSpecs(app, resource, AdminAccount, factories, accessToken, serializer)
+                .destroy()
+                .create()
+                .update()
+                .index()
+                .show()
+
+              accountableSpecs(app, resource, AdminAccount, accessToken)
+            .then null, logger.error

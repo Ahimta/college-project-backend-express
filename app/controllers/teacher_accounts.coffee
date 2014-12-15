@@ -35,6 +35,8 @@ router
   .put '/:id/add_to_guides', assertSupervisor, addOrRemoveGuide(true)
 
 coursable(router, TeacherAccount, 'teacher_account', serializer: serializer)
+  .write(assertSupervisor)
+  .read(assertSupervisor)
 
 simpleCrud(router, TeacherAccount, 'teacher_accounts', serializer, constructor)
   .destroy(assertSupervisor)
