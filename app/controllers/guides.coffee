@@ -6,6 +6,7 @@ assertSupervisor = require('./concerns/middleware/authentication').assertSupervi
 controllersUtils = require (config.get('paths.utils') + '/controllers')
 StudentAccount   = require (config.get('paths.models') + '/student_account')
 TeacherAccount   = require (config.get('paths.models') + '/teacher_account')
+Course           = require (config.get('paths.models') + '/course')
 serializers      = require(config.get('paths.serializers'))
 
 module.exports = (app) ->
@@ -34,7 +35,7 @@ addOrRemoveStudent = (add) -> (req, res, next) ->
     .then null, controllersUtils.mongooseErr(res, next)
 
 router
-  .get '/', (req, res, next) ->
+  .get '/', assertSupervisor, (req, res, next) ->
     TeacherAccount.find(is_guide: true).exec()
       .then (guides) ->
         res.send(guides: guides.map(serializers.teacherAccount))
@@ -59,6 +60,42 @@ router
             res.send
               student_accounts: students.map(serializers.studentAccount)
               teacher_account: serializers.teacherAccount(guide)
+      .then null, controllersUtils.mongooseErr(res, next)
+
+  .get '/:guideId/students/:studentId', (req, res, next) ->
+    TeacherAccount.findOne(_id: req.params.guideId, is_guide: true).exec()
+      .then (teacher) ->
+        return controllersUtils.notFound(res) unless teacher
+        StudentAccount.findById(req.params.studentId).exec()
+          .then (student) ->
+            if student
+              res.send
+                teacher_account: serializers.teacherAccount(teacher)
+                student_account: serializers.studentAccount(student)
+            else
+              controllersUtils.notFound(res)
+          .then null, controllersUtils.mongooseErr(res, next)
+      .then null, controllersUtils.mongooseErr(res, next)
+
+  .get '/:guideId/students/:studentId/courses', (req, res, next) ->
+    TeacherAccount.findOne(_id: req.params.guideId, is_guide: true).exec()
+      .then (teacher) ->
+        return controllersUtils.notFound(res) unless teacher
+        StudentAccount.findById(req.params.studentId).exec()
+          .then (student) ->
+            return controllersUtils.notFound(res) unless student
+            Course.find({_id: {$in: student.courses_ids}}).exec()
+              .then (currentCourses) ->
+                Course.find(_id: {$nin: student.courses_ids}).exec()
+                  .then (nonCurrentCourses) ->
+                    res.send
+                      student_account: serializers.studentAccount(student)
+                      teacher_account: serializers.teacherAccount(teacher)
+                      courses:
+                        not_current: nonCurrentCourses.map(serializers.course)
+                        current: currentCourses.map(serializers.course)
+              .then null, controllersUtils.mongooseErr(res, next)
+          .then null, controllersUtils.mongooseErr(res, next)
       .then null, controllersUtils.mongooseErr(res, next)
 
   .put '/:id/students/:studentId/remove', addOrRemoveStudent(false)

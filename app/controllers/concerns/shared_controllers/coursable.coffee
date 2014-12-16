@@ -36,21 +36,6 @@ module.exports = (router, model, entityName, options={serializer: _.identity}) -
           .then null, controllersUtils.mongooseErr(res, next)
       .then null, controllersUtils.mongooseErr(res, next)
 
-  coursesCurrentOrNot = (isCurrent) -> (req, res, next) ->
-
-      model.findById(req.params.id).exec()
-        .then (coursable) ->
-          return controllersUtils.notFound(res) unless coursable
-
-          courseQuery = if isCurrent then {_id: {$in: coursable.courses_ids}}
-          else {_id: {$nin: coursable.courses_ids} }
-
-          Course.find(courseQuery).exec()
-            .then (courses) ->
-              res.send encapsulate(coursable, courses: courses.map(serializers.course))
-            .then null, controllersUtils.mongooseErr(res, next)
-        .then null, controllersUtils.mongooseErr(res, next)
-
   self = ->
     module.exports(router, model, entityName, options)
 
@@ -62,7 +47,19 @@ module.exports = (router, model, entityName, options={serializer: _.identity}) -
 
   read: (middleware=[]) ->
     router
-      .get '/:id/courses/not_current', middleware, coursesCurrentOrNot(false)
-      .get '/:id/courses/current', middleware, coursesCurrentOrNot(true)
-      .get '/:id/courses', middleware, coursesCurrentOrNot(true)
+      .get '/:id/courses', middleware, (req, res, next) ->
+        model.findById(req.params.id).exec()
+          .then (coursable) ->
+            return controllersUtils.notFound(res) unless coursable
+
+            Course.find(_id: {$in: coursable.courses_ids}).exec()
+              .then (currentCourses) ->
+                Course.find(_id: {$nin: coursable.courses_ids}).exec()
+                  .then (nonCurrentCourses) ->
+                    res.send encapsulate coursable,
+                      courses:
+                        not_current: nonCurrentCourses.map(serializers.course)
+                        current: currentCourses.map(serializers.course)
+              .then null, controllersUtils.mongooseErr(res, next)
+          .then null, controllersUtils.mongooseErr(res, next)
     self()
