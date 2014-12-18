@@ -18,3 +18,7 @@ module.exports =
   jobRequest: baseSerializer
   account: accountSerializer
   course: baseSerializer
+  class: (klass) ->
+    _.merge baseSerializer(klass),
+      teacher_id: klass.teacher_id.toString()
+      course_id:  klass.course_id.toString()

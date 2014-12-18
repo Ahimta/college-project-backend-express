@@ -21,6 +21,7 @@ module.exports =
   adminAccount: accountConstrouctor
   account: accountConstrouctor
   course: _.identity
+  class: _.identity
   jobRequest: (jobRequest) ->
     security.generateSecureToken().then (token) ->
       _.merge(_.clone(jobRequest), token: token)

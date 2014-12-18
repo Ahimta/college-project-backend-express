@@ -22,7 +22,7 @@ makeAccountable = (name, fields=[], update=false) ->
   finalForm = form(allFields...)
   makeValidator finalForm
 
-module.exports.jobRequest = makeValidator form(
+exports.jobRequest = makeValidator form(
   field('job_request.specialization').required().notEmpty(),
   field('job_request.fullname').required().notEmpty(),
   field('job_request.address').required().notEmpty(),
@@ -37,25 +37,29 @@ module.exports.jobRequest = makeValidator form(
   field('job_request.id_num').required().notEmpty(),
   field('job_request.job').required().notEmpty())
 
-module.exports.course = makeValidator form(
+exports.class = makeValidator form(
+  field('class.teacher_id').required().notEmpty(),
+  field('class.course_id').required().notEmpty())
+
+exports.course = makeValidator form(
   field('course.name').required().notEmpty(),
   field('course.code').required().notEmpty())
 
-module.exports.supervisorAccount = makeAccountable('supervisor_account')
-module.exports.recruiterAccount  = makeAccountable('recruiter_account')
-module.exports.studentAccount    = makeAccountable 'student_account',
+exports.supervisorAccount = makeAccountable('supervisor_account')
+exports.recruiterAccount  = makeAccountable('recruiter_account')
+exports.studentAccount    = makeAccountable 'student_account',
   [
     field('student_account.collegial_number')
     field('student_account.specialization')
   ]
-module.exports.teacherAccount    = makeAccountable 'teacher_account',
+exports.teacherAccount    = makeAccountable 'teacher_account',
   [
     field('teacher_account.specialization')
     field('teacher_account.is_guide')
   ]
-module.exports.adminAccount      = makeAccountable('admin_account')
+exports.adminAccount      = makeAccountable('admin_account')
 
-module.exports.session = makeValidator form(
+exports.session = makeValidator form(
   field('username').required().notEmpty(),
   field('password').required().notEmpty(),
   field('role').required().notEmpty())

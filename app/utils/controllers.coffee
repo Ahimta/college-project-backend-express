@@ -5,13 +5,15 @@ _      = require('lodash')
 module.exports =
 
   getResourceName: (resource) ->
-    resource.split('/').join('_')[0...-1]
-    _.last(resource.split('/'))[0...-1]
+    last = _.last(resource.split('/'))
+    if last == 'classes' then 'class'
+    else last[0...-1]
 
   getResponseBody: (resourceName) ->
     (record) ->
+      collectionName = if resourceName == 'class' then 'classes' else (resourceName + 's')
       responseBody = {}
-      recordName   = if Array.isArray(record) then (resourceName + 's') else resourceName
+      recordName   = if Array.isArray(record) then collectionName else resourceName
 
       responseBody[recordName] = record
       responseBody

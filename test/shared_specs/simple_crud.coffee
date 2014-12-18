@@ -189,7 +189,8 @@ module.exports = (app, resource, mongooseModel, samples, token=null, serializer=
           .expect('Content-Type', expectedContentType)
           .expect(200)
           .expect (res) =>
-            expect(res.body[resourceName + 's'].length).to.eql(@count)
+            collection = res.body[resourceName + 's'] || res.body[resourceName + 'es']
+            expect(collection.length).to.eql(@count)
             false
           .end(done)
 
