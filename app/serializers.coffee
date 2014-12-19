@@ -9,16 +9,34 @@ baseSerializer = (mongoRecord) ->
 accountSerializer = (account) ->
   _.omit(baseSerializer(account), 'password')
 
+supervisorAccount = accountSerializer
+recruiterAccount  = accountSerializer
+studentAccount    = accountSerializer
+teacherAccount    = accountSerializer
+adminAccount      = accountSerializer
+jobRequest        = baseSerializer
+account           = accountSerializer
+course            = baseSerializer
+klass             = (klass) ->
+  _.merge baseSerializer(klass),
+    teacher_id: klass.teacher_id.toString()
+    course_id:  klass.course_id.toString()
+
+classExpanded = (klass) ->
+  _.merge _.omit(baseSerializer(klass), 'teacher_id', 'course_id'),
+    teacher: teacherAccount(klass.teacher_id)
+    course: course(klass.course_id)
+    students: klass.students.map (student) ->
+      _.merge _.clone(student), studentAccount(student._id)
+
 module.exports =
-  supervisorAccount: accountSerializer
-  recruiterAccount: accountSerializer
-  studentAccount: accountSerializer
-  teacherAccount: accountSerializer
-  adminAccount: accountSerializer
-  jobRequest: baseSerializer
+  supervisorAccount: supervisorAccount
+  recruiterAccount: recruiterAccount
+  studentAccount: studentAccount
+  teacherAccount: teacherAccount
+  adminAccount: adminAccount
+  jobRequest: jobRequest
   account: accountSerializer
-  course: baseSerializer
-  class: (klass) ->
-    _.merge baseSerializer(klass),
-      teacher_id: klass.teacher_id.toString()
-      course_id:  klass.course_id.toString()
+  course: course
+  class: klass
+  classExpanded: classExpanded
