@@ -1,6 +1,10 @@
 mongoose = require('mongoose')
 
 schema = new mongoose.Schema
+  name:
+    required: true
+    unique: true
+    type: String
   teacher_id:
     type: mongoose.Schema.Types.ObjectId
     index: true

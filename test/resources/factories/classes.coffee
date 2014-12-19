@@ -8,6 +8,7 @@ module.exports =
       errorKeys: [
         'class.teacher_id'
         'class.course_id'
+        'class.name'
       ]
       form:
         class:
@@ -16,6 +17,7 @@ module.exports =
     {
       errorKeys: [
         'class.teacher_id'
+        'class.name'
       ]
       form:
         class:
@@ -24,6 +26,7 @@ module.exports =
     {
       errorKeys: [
         'class.course_id'
+        'class.name'
       ]
       form:
         class:
@@ -35,9 +38,11 @@ module.exports =
       form:
         class:
           teacher_id: '549228e16280ba621824adee'
-          course_id: '549228e16280ba621824adea'
+          course_id:  '549228e16280ba621824adea'
+          name:       'Class X'
       res:
         teacher_id: '549228e16280ba621824adee'
-        course_id: '549228e16280ba621824adea'
+        course_id:  '549228e16280ba621824adea'
+        name:       'Class X'
     }
   ]

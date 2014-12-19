@@ -27,7 +27,12 @@ module.exports =
   mongooseErr: (res, next) ->
     (err) ->
       logger.error('controllersUtils.mongooseErr', err)
-
-      if err.name == 'CastError' then module.exports.notFound(res)
-      else if err.code?.toString() == '11000' then res.status(409).send(message: 'Conflict', status: 409)
-      else next(err)
+      if err.name == 'MongoError'
+        switch err.code?.toString()
+          when '11000' then res.status(409).send(message: 'Conflict', status: 409)
+          else next(err)
+      else
+        switch err.name
+          when 'CastError' then module.exports.notFound(res)
+          when 'ValidationError' then res.status(400).end()
+          else next(err)

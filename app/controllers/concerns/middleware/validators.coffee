@@ -39,7 +39,8 @@ exports.jobRequest = makeValidator form(
 
 exports.class = makeValidator form(
   field('class.teacher_id').required().notEmpty(),
-  field('class.course_id').required().notEmpty())
+  field('class.course_id').required().notEmpty(),
+  field('class.name').required().notEmpty())
 
 exports.course = makeValidator form(
   field('course.name').required().notEmpty(),
