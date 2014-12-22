@@ -9,6 +9,7 @@ StudentAccount   = require (config.get('paths.models') + '/student_account')
 TeacherAccount   = require (config.get('paths.models') + '/teacher_account')
 simpleCrud       = require('./concerns/shared_controllers/simple_crud')
 coursable        = require('./concerns/shared_controllers/coursable')
+classable        = require('./concerns/shared_controllers/classable')
 validator        = require('./concerns/middleware/validators').studentAccount
 
 constructor = require(config.get('paths.constructors')).studentAccount
@@ -41,6 +42,10 @@ router
         .then null, controllersUtils.mongooseErr(res, next)
 
 coursable(router, StudentAccount, 'student_account', serializer: serializer)
+  .write(assertSupervisor)
+  .read(assertSupervisor)
+
+classable(router, StudentAccount, 'student_account', 'students._id', serializer: serializer, isStudent: true)
   .write(assertSupervisor)
   .read(assertSupervisor)
 

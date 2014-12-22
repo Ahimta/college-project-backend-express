@@ -16,7 +16,7 @@ module.exports = (router, model, entityName, options={serializer: _.identity}) -
     jsonRes[entityName] = serializer(coursable)
 
     jsonRes
-    
+
   addOrRemoveCourse = (isAdd) -> (req, res, next) ->
     studentId = req.params.id
     courseId  = req.params.courseId

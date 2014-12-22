@@ -7,6 +7,7 @@ controllersUtils = require (config.get('paths.utils') + '/controllers')
 TeacherAccount   = require (config.get('paths.models') + '/teacher_account')
 simpleCrud       = require('./concerns/shared_controllers/simple_crud')
 coursable        = require('./concerns/shared_controllers/coursable')
+classable        = require('./concerns/shared_controllers/classable')
 validator        = require('./concerns/middleware/validators').teacherAccount
 Course           = require (config.get('paths.models') + '/course')
 
@@ -35,6 +36,10 @@ router
   .put '/:id/add_to_guides', assertSupervisor, addOrRemoveGuide(true)
 
 coursable(router, TeacherAccount, 'teacher_account', serializer: serializer)
+  .write(assertSupervisor)
+  .read(assertSupervisor)
+
+classable(router, TeacherAccount, 'teacher_account', 'teacher_id', serializer: serializer)
   .write(assertSupervisor)
   .read(assertSupervisor)
 
