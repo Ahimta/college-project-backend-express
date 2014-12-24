@@ -22,12 +22,12 @@ klass             = (klass) ->
     teacher_id: klass.teacher_id.toString()
     course_id:  klass.course_id.toString()
 
-classExpanded = (klass) ->
-  _.merge _.omit(baseSerializer(klass), 'teacher_id', 'course_id'),
-    teacher: teacherAccount(klass.teacher_id)
-    course: course(klass.course_id)
-    students: klass.students.map (student) ->
-      _.merge _.clone(student), studentAccount(student._id)
+classExpanded = (c) ->
+  _.merge _.omit(klass(c), 'teacher_id', 'course_id'),
+    teacher: teacherAccount(c.teacher_id)
+    course: course(c.course_id)
+    students: c.students.map (student) ->
+      studentAccount(student._id)
 
 module.exports =
   supervisorAccount: supervisorAccount

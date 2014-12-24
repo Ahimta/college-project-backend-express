@@ -10,8 +10,10 @@ coursable        = require('./concerns/shared_controllers/coursable')
 classable        = require('./concerns/shared_controllers/classable')
 validator        = require('./concerns/middleware/validators').teacherAccount
 Course           = require (config.get('paths.models') + '/course')
+Class            = require (config.get('paths.models') + '/class')
 
 constructor = require(config.get('paths.constructors')).teacherAccount
+serializers = require(config.get('paths.serializers'))
 serializer  = require(config.get('paths.serializers')).teacherAccount
 
 module.exports = (app) ->
@@ -41,7 +43,7 @@ coursable(router, TeacherAccount, 'teacher_account', serializer: serializer)
 
 classable(router, TeacherAccount, 'teacher_account', 'teacher_id', serializer: serializer)
   .write(assertSupervisor)
-  .read(assertSupervisor)
+  .read()
 
 simpleCrud(router, TeacherAccount, 'teacher_accounts', serializer, constructor)
   .destroy(assertSupervisor)

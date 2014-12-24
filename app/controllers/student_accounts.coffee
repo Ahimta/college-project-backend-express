@@ -47,7 +47,7 @@ coursable(router, StudentAccount, 'student_account', serializer: serializer)
 
 classable(router, StudentAccount, 'student_account', 'students._id', serializer: serializer, isStudent: true)
   .write(assertSupervisor)
-  .read(assertSupervisor)
+  .read()
 
 simpleCrud(router, StudentAccount, 'student_accounts', serializer, constructor)
   .destroy(assertSupervisor)

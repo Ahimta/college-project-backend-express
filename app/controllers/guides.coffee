@@ -7,6 +7,7 @@ controllersUtils = require (config.get('paths.utils') + '/controllers')
 StudentAccount   = require (config.get('paths.models') + '/student_account')
 TeacherAccount   = require (config.get('paths.models') + '/teacher_account')
 Course           = require (config.get('paths.models') + '/course')
+Class            = require (config.get('paths.models') + '/class')
 serializers      = require(config.get('paths.serializers'))
 
 module.exports = (app) ->
@@ -74,6 +75,31 @@ router
                 student_account: serializers.studentAccount(student)
             else
               controllersUtils.notFound(res)
+          .then null, controllersUtils.mongooseErr(res, next)
+      .then null, controllersUtils.mongooseErr(res, next)
+
+  .get '/:guideId/students/:studentId/classes', (req, res, next) ->
+    TeacherAccount.findOne(_id: req.params.guideId, is_guide: true).exec()
+      .then (teacher) ->
+        return controllersUtils.notFound(res) unless teacher
+        StudentAccount.findById(req.params.studentId).exec()
+          .then (student) ->
+            return controllersUtils.notFound(res) unless student
+            Class.find('students._id': student._id)
+              .populate('students._id teacher_id course_id')
+              .exec()
+              .then (currentCourses) ->
+                Class.find('students._id': {$ne: student._id})
+                .populate('students._id teacher_id course_id')
+                .exec()
+                  .then (nonCurrentCourses) ->
+                    res.send
+                      student_account: serializers.studentAccount(student)
+                      teacher_account: serializers.teacherAccount(teacher)
+                      classes:
+                        not_current: nonCurrentCourses.map(serializers.classExpanded)
+                        current: currentCourses.map(serializers.classExpanded)
+              .then null, controllersUtils.mongooseErr(res, next)
           .then null, controllersUtils.mongooseErr(res, next)
       .then null, controllersUtils.mongooseErr(res, next)
 
