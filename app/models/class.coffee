@@ -5,9 +5,15 @@ schema = new mongoose.Schema
     required: true
     unique: true
     type: String
-  hours: Number
-  type: String
-  day: String
+  hours:
+    default: 2
+    type: Number
+  type:
+    default: 'محاضرة'
+    type: String
+  day:
+    default: 'الإثنين'
+    type: String
   teacher_id:
     type: mongoose.Schema.Types.ObjectId
     index: true
