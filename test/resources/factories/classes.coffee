@@ -8,7 +8,10 @@ module.exports =
       errorKeys: [
         'class.teacher_id'
         'class.course_id'
+        'class.hours'
+        'class.type'
         'class.name'
+        'class.day'
       ]
       form:
         class:
@@ -17,7 +20,10 @@ module.exports =
     {
       errorKeys: [
         'class.teacher_id'
+        'class.hours'
+        'class.type'
         'class.name'
+        'class.day'
       ]
       form:
         class:
@@ -26,7 +32,10 @@ module.exports =
     {
       errorKeys: [
         'class.course_id'
+        'class.hours'
+        'class.type'
         'class.name'
+        'class.day'
       ]
       form:
         class:
@@ -39,10 +48,16 @@ module.exports =
         class:
           teacher_id: '549228e16280ba621824adee'
           course_id:  '549228e16280ba621824adea'
+          hours:      2
+          type:       'x'
           name:       'Class X'
+          day:        'y'
       res:
         teacher_id: '549228e16280ba621824adee'
         course_id:  '549228e16280ba621824adea'
+        hours:      2
+        type:       'x'
         name:       'Class X'
+        day:        'y'
     }
   ]

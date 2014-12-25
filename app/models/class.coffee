@@ -5,6 +5,9 @@ schema = new mongoose.Schema
     required: true
     unique: true
     type: String
+  hours: Number
+  type: String
+  day: String
   teacher_id:
     type: mongoose.Schema.Types.ObjectId
     index: true
@@ -20,10 +23,16 @@ schema = new mongoose.Schema
       _id:
         type: mongoose.Schema.Types.ObjectId
         ref: 'StudentAccount'
-      attendance: Number
+      attendance:
+        default: 100
+        type: Number
       grades:
-        midterm: Number
-        final: Number
+        midterm:
+          default: 0
+          type: Number
+        final:
+          default: 0
+          type: Number
     ]
     index: true
     default: []
