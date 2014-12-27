@@ -5,7 +5,7 @@ _      = require('lodash')
 assertSupervisor = require('../middleware/authentication').assertSupervisor
 controllersUtils = require (config.get('paths.utils') + '/controllers')
 serializers      = require(config.get('paths.serializers'))
-Class           = require("#{config.get('paths.models')}/class")
+Class            = require("#{config.get('paths.models')}/class")
 
 module.exports = (router, model, entityName, fieldName, options={serializer: _.identity, isStudent: false}) ->
 
@@ -32,8 +32,6 @@ module.exports = (router, model, entityName, fieldName, options={serializer: _.i
         command = if options.isStudent then objectWithKey('students', _id: classable._id)
         else objectWithKey(fieldName, classable._id)
         fullCommand = if isAdd then {$addToSet: command} else {$pull: command}
-        console.log 'addOrRemoveClass command', command
-        console.log 'addOrRemoveClass fullCommand', fullCommand
         Class.findByIdAndUpdate(req.params.classId, fullCommand).exec()
           .then (klass) ->
             if klass

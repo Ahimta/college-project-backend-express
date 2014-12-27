@@ -9,9 +9,9 @@ controllersUtils = require (config.get('paths.utils') + '/controllers')
 simpleCrud       = require('./concerns/shared_controllers/simple_crud')
 validator        = require('./concerns/middleware/validators').class
 
-Teacher          = require (config.get('paths.models') + '/teacher_account')
-Student          = require (config.get('paths.models') + '/student_account')
-Class            = require (config.get('paths.models') + '/class')
+Teacher = require (config.get('paths.models') + '/teacher_account')
+Student = require (config.get('paths.models') + '/student_account')
+Class   = require (config.get('paths.models') + '/class')
 
 constructor = require(config.get('paths.constructors')).class
 serializers = require(config.get('paths.serializers'))
@@ -41,7 +41,9 @@ router
             students: classExpanded.students
             teacher:  classExpanded.teacher
             course:   classExpanded.course
-            class:    _.omit(serializers.class(klass), 'students', 'teacher_id', 'course_id')
+            class:    _.merge _.omit(serializers.class(klass), 'students'),
+              teacher_id: klass.teacher_id._id.toString()
+              course_id:  klass.course_id._id.toString()
         else
           controllersUtils.notFound(res)
       .then null, controllersUtils.mongooseErr(res, next)
@@ -61,13 +63,24 @@ router
       .then null, controllersUtils.mongooseErr(res, next)
 
   .get '/:id/students', assertSupervisor, (req, res, next) ->
-    Class.findById(req.params.id).exec()
+    Class.findById(req.params.id)
+      .populate('students._id')
+      .exec()
       .then (klass) ->
         return controllersUtils.notFound(res) unless klass
-        Student.find(_id: {$in: _.map(klass.students, '_id')}).exec().then (students) ->
-          res.send
-            student_accounts: students.map(serializers.studentAccount)
-            class:            serializers.class(klass)
+
+        studentsIds = _.map klass.students, (student) ->
+          student._id._id.toString()
+        currentStudents = klass.students.map (student) ->
+          _.merge serializers.studentAccount(student._id), _.omit(student.toObject(), '_id')
+
+        Student.find(_id: {$nin: studentsIds}).exec()
+          .then (notCurrentStudents) ->
+            res.send
+              class: serializers.class(klass)
+              students:
+                not_current: notCurrentStudents.map(serializers.studentAccount)
+                current:     currentStudents
       .then null, controllersUtils.mongooseErr(res, next)
 
 simpleCrud(router, Class, 'classes', serializer, constructor)
