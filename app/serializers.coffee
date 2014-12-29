@@ -19,13 +19,13 @@ account           = accountSerializer
 course            = baseSerializer
 klass             = (klass) ->
   _.merge baseSerializer(klass),
-    teacher_id: klass.teacher_id.toString()
-    course_id:  klass.course_id.toString()
+    teacher_id: klass.teacher_id?.toString()
+    course_id:  klass.course_id?.toString()
 
 classExpanded = (c) ->
   _.merge klass(c),
-    teacher: teacherAccount(c.teacher_id)
-    course: course(c.course_id)
+    teacher: teacherAccount(c.teacher_id) if c.teacher_id
+    course: course(c.course_id)           if c.course_id
     students: c.students.map (student) ->
       studentAccount(student._id)
 

@@ -31,7 +31,9 @@ module.exports = (router, model, entityName, fieldName, options={serializer: _.i
         return controllersUtils.notFound(res) unless classable
         command = if options.isStudent then objectWithKey('students', _id: classable._id)
         else objectWithKey(fieldName, classable._id)
-        fullCommand = if isAdd then {$addToSet: command} else {$pull: command}
+        fullStudentCommand = if isAdd then {$addToSet: command} else {$pull: command}
+        fullTeacherCommand = if isAdd then command else {$unset: command}
+        fullCommand = if options.isStudent then fullStudentCommand else fullTeacherCommand
         Class.findByIdAndUpdate(req.params.classId, fullCommand).exec()
           .then (klass) ->
             if klass

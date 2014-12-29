@@ -34,6 +34,18 @@ router
           teacher_accounts: teachers.map(serializer)
       .then null, controllersUtils.mongooseErr(res, next)
 
+  .put '/:id/classes/:classId/remove', assertSupervisor, (req, res, next) ->
+    TeacherAccount.findById(req.params.id).exec()
+      .then (teacher) ->
+        return controllersUtils.notFound(res) unless teacher
+        Class.findByIdAndUpdate(req.params.classId, {$unset: {teacher_id: teacher.id}}).exec()
+          .then (klass) ->
+            return controllersUtils.notFound(res) unless klass
+            res.send
+              teacher_account: serializers.teacherAccount(teacher)
+              class:           serializers.class(klass)
+      .then null, controllersUtils.mongooseErr(res, next)
+
   .put '/:id/remove_from_guides', assertSupervisor, addOrRemoveGuide(false)
   .put '/:id/add_to_guides', assertSupervisor, addOrRemoveGuide(true)
 
