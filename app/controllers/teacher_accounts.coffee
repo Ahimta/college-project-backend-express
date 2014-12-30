@@ -1,6 +1,7 @@
 express = require('express')
 config  = require('config')
 router  = express.Router()
+_       = require('lodash')
 
 assertSupervisor = require('./concerns/middleware/authentication').assertSupervisor
 controllersUtils = require (config.get('paths.utils') + '/controllers')
@@ -33,6 +34,25 @@ router
         res.send
           teacher_accounts: teachers.map(serializer)
       .then null, controllersUtils.mongooseErr(res, next)
+
+  .get '/:id/classes/:classId', (req, res, next) ->
+    TeacherAccount.findById(req.params.id).exec()
+      .then (teacher) ->
+        return controllersUtils.notFound(res) unless teacher
+        Class.findById(req.params.classId)
+          .populate('students._id course_id')
+          .exec()
+          .then (klass) ->
+            res.send
+              teacher_account: serializers.teacherAccount(teacher)
+              course: serializers.course(klass.course_id)
+              class:  serializers.class(klass)
+              students: klass.students.map (student) ->
+                studentAccount = serializers.studentAccount(student._id)
+                studentInfo    = _.pick(student, 'attendance', 'grades')
+                _.merge studentAccount, studentInfo
+      .then null, controllersUtils.mongooseErr(res, next)
+
 
   .put '/:id/classes/:classId/remove', assertSupervisor, (req, res, next) ->
     TeacherAccount.findById(req.params.id).exec()

@@ -49,7 +49,7 @@ router
       .then (student) ->
         return controllersUtils.notFound(res) unless student
 
-        Class.find({'students._id': student._id}, {'students.$': 1, teacher_id: 1, course_id: 1, name: 1})
+        Class.find({'students._id': student._id}, {'students.$': 1, teacher_id: 1, course_id: 1, name: 1, type: 1, hours: 1, day: 1})
           .populate('students._id teacher_id course_id')
           .exec()
           .then (current) ->
