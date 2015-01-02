@@ -53,7 +53,6 @@ router
                 _.merge studentAccount, studentInfo
       .then null, controllersUtils.mongooseErr(res, next)
 
-
   .put '/:id/classes/:classId/remove', assertSupervisor, (req, res, next) ->
     TeacherAccount.findById(req.params.id).exec()
       .then (teacher) ->
@@ -65,6 +64,33 @@ router
               teacher_account: serializers.teacherAccount(teacher)
               class:           serializers.class(klass)
       .then null, controllersUtils.mongooseErr(res, next)
+
+  .put '/:teacherId/classes/:classId/students/:studentId', (req, res, next) ->
+    command =
+      $pull:
+        students:
+          _id: req.params.studentId
+
+    query =
+      _id: req.params.classId
+      teacher_id: req.params.teacherId
+      'students._id': req.params.studentId
+
+
+    Class.findOneAndUpdate(query, command)
+      .exec()
+      .then (klass) ->
+        return controllersUtils.notFound(res) unless klass
+        command =
+          $addToSet:
+            students:
+              _id: req.params.studentId
+              attendance: req.body.student?.attendance
+              grades:
+                req.body.student?.grades
+        Class.findByIdAndUpdate(req.params.classId, command).exec().then (klass) ->
+          res.status(200).end()
+      .then null, controllersUtils.mongooseErr(res)
 
   .put '/:id/remove_from_guides', assertSupervisor, addOrRemoveGuide(false)
   .put '/:id/add_to_guides', assertSupervisor, addOrRemoveGuide(true)
