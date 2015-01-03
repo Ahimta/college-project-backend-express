@@ -1,6 +1,7 @@
 express = require('express')
 config  = require('config')
 router  = express.Router()
+_       = require('lodash')
 
 assertSupervisor = require('./concerns/middleware/authentication').assertSupervisor
 controllersUtils = require (config.get('paths.utils') + '/controllers')
@@ -32,7 +33,6 @@ addOrRemoveStudent = (add) -> (req, res, next) ->
               teacher_account: serializers.teacherAccount(guide)
           else
             controllersUtils.notFound(res)
-        .then null, controllersUtils.mongooseErr(res, next)
     .then null, controllersUtils.mongooseErr(res, next)
 
 router
@@ -50,17 +50,15 @@ router
       .then null, controllersUtils.mongooseErr(res, next)
 
   .get '/:id/students', (req, res, next) ->
-    teacherId = req.params.id
-
-    TeacherAccount.findOne(_id: teacherId, is_guide: true).exec()
+    TeacherAccount.findOne(_id: req.params.id, is_guide: true).exec()
       .then (guide) ->
         return controllersUtils.notFound(res) unless guide
 
-        StudentAccount.find(guide_id: teacherId).exec()
+        StudentAccount.find(guide_id: guide._id).exec()
           .then (students) ->
             res.send
               student_accounts: students.map(serializers.studentAccount)
-              teacher_account: serializers.teacherAccount(guide)
+              teacher_account:  serializers.teacherAccount(guide)
       .then null, controllersUtils.mongooseErr(res, next)
 
   .get '/:guideId/students/:studentId', (req, res, next) ->
@@ -80,8 +78,8 @@ router
 
   .get '/:guideId/students/:studentId/classes', (req, res, next) ->
     TeacherAccount.findOne(_id: req.params.guideId, is_guide: true).exec()
-      .then (teacher) ->
-        return controllersUtils.notFound(res) unless teacher
+      .then (guide) ->
+        return controllersUtils.notFound(res) unless guide
         StudentAccount.findById(req.params.studentId).exec()
           .then (student) ->
             return controllersUtils.notFound(res) unless student
@@ -89,16 +87,21 @@ router
               .populate('students._id teacher_id course_id')
               .exec()
               .then (currentCourses) ->
-                Class.find('students._id': {$ne: student._id})
-                .populate('students._id teacher_id course_id')
-                .exec()
-                  .then (nonCurrentCourses) ->
-                    res.send
-                      student_account: serializers.studentAccount(student)
-                      teacher_account: serializers.teacherAccount(teacher)
-                      classes:
-                        not_current: nonCurrentCourses.map(serializers.classExpanded)
-                        current: currentCourses.map(serializers.classExpanded)
+                res.send
+                  student_account: serializers.studentAccount(student)
+                  teacher_account: serializers.teacherAccount(guide)
+                  classes: current: currentCourses.map (klass) ->
+                    serializedKlass = serializers.class _.omit(klass.toObject(), 'teacher_id', 'course_id', 'students')
+                    studentData = _.find klass.students, (s) ->
+                      s._id._id.toString() == student._id.toString()
+                    studentInfo = _.pick(studentData, 'attendance', 'grades')
+
+                    _.merge serializedKlass, studentInfo,
+                      teacher_id: klass.populated('teacher_id')
+                      course_id:  klass.populated('course_id')
+                      students_ids: klass.populated('students._id')
+                      teacher: serializers.teacherAccount(klass.teacher_id)
+                      course:  serializers.course(klass.course_id)
               .then null, controllersUtils.mongooseErr(res, next)
           .then null, controllersUtils.mongooseErr(res, next)
       .then null, controllersUtils.mongooseErr(res, next)

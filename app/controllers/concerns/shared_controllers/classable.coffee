@@ -68,7 +68,7 @@ module.exports = (router, model, entityName, fieldName, options={serializer: _.i
                       res.send encapsulate classable,
                         classes:
                           not_current: notCurrent.map(serializers.classExpanded)
-                          current: current.map(serializers.classExpanded)
+                          current:     current.map(serializers.classExpanded)
               .then null, controllersUtils.mongooseErr(res, next)
           .then null, controllersUtils.mongooseErr(res, next)
     self()
