@@ -9,6 +9,11 @@ baseSerializer = (mongoRecord) ->
 accountSerializer = (account) ->
   _.omit(baseSerializer(account), 'password')
 
+getId = (objectOrId) ->
+  if typeof objectOrId == 'string'
+    objectOrId
+  else objectOrId?._id?.toString() || objectOrId.toString()
+
 supervisorAccount = accountSerializer
 recruiterAccount  = accountSerializer
 studentAccount    = accountSerializer
@@ -19,15 +24,17 @@ account           = accountSerializer
 course            = baseSerializer
 klass             = (klass) ->
   _.merge baseSerializer(klass),
-    teacher_id: klass.teacher_id?.toString()
-    course_id:  klass.course_id?.toString()
+    teacher_id: getId(klass.teacher_id) if klass.teacher_id
+    course_id:  getId(klass.course_id)  if klass.course_id
 
 classExpanded = (c) ->
-  _.merge klass(c),
+  _.merge _.omit(klass(c), 'students'),
     teacher: teacherAccount(c.teacher_id) if c.teacher_id
     course: course(c.course_id)           if c.course_id
     students: c.students.map (student) ->
-      studentAccount(student._id)
+      studentData = studentAccount(student._id)
+      studentInfo = _.pick(student, 'attendance', 'grades')
+      _.merge(studentData, studentInfo)
 
 module.exports =
   supervisorAccount: supervisorAccount
