@@ -59,7 +59,7 @@ exports.studentAccount    = makeAccountable 'student_account',
 exports.teacherAccount    = makeAccountable 'teacher_account',
   [
     field('teacher_account.specialization')
-    field('teacher_account.is_guide')
+    field('teacher_account.is_guide').toBooleanStrict()
   ]
 exports.adminAccount      = makeAccountable('admin_account')
 

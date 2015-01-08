@@ -34,6 +34,7 @@ accounts =
     fullname: 'teacher'
     username: 'teacher'
     password: 'teacher'
+    is_guide: false
 
   admin:
     fullname: 'admin'
