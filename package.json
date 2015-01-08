@@ -2,7 +2,7 @@
   "name": "college-project-backend-express",
   "version": "0.0.1",
   "private": true,
-  "main": "./app.js",
+  "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "test": "NODE_ENV=test mocha --compilers coffee:coffee-script/register --reporter nyan"
@@ -35,6 +35,5 @@
   },
   "engines": {
     "node": ">=0.10.0"
-  },
-  "main": "app.js"
+  }
 }
