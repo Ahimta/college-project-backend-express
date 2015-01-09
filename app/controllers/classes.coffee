@@ -36,14 +36,11 @@ router
       .exec()
       .then (klass) ->
         if klass
-          classExpanded = serializers.classExpanded(klass)
           res.send
-            students: classExpanded.students
-            teacher:  classExpanded.teacher
-            course:   classExpanded.course
-            class:    _.merge _.omit(serializers.class(klass), 'students'),
-              teacher_id: klass.teacher_id._id.toString()
-              course_id:  klass.course_id._id.toString()
+            students: klass.students.map(serializers.classStudent)
+            teacher:  serializers.teacherAccount(klass.teacher_id)
+            course:   serializers.course(klass.course_id)
+            class:    serializers.class(klass)
         else
           controllersUtils.notFound(res)
       .then null, controllersUtils.mongooseErr(res, next)
@@ -71,8 +68,7 @@ router
 
         studentsIds = _.map klass.students, (student) ->
           student._id._id.toString()
-        currentStudents = klass.students.map (student) ->
-          _.merge serializers.studentAccount(student._id), _.omit(student.toObject(), '_id')
+        currentStudents = klass.students
 
         Student.find(_id: {$nin: studentsIds}).exec()
           .then (notCurrentStudents) ->
@@ -81,7 +77,7 @@ router
               class: serializers.class(klass)
               students:
                 not_current: notCurrentStudents.map(serializers.studentAccount)
-                current:     currentStudents
+                current:     currentStudents.map(serializers.classStudent)
       .then null, controllersUtils.mongooseErr(res, next)
 
 simpleCrud(router, Class, 'classes', serializer, constructor)

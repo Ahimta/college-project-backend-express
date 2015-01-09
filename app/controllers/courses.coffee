@@ -2,6 +2,7 @@ express = require('express')
 config  = require('config')
 logger  = require config.get('paths.logger')
 router  = express.Router()
+_       = require('lodash')
 
 assertSupervisor = require('./concerns/middleware/authentication').assertSupervisor
 controllersUtils = require (config.get('paths.utils') + '/controllers')
@@ -24,11 +25,13 @@ router
       .then (course) ->
         return controllersUtils.notFound(res) unless course
 
-        Class.find(course_id: course._id).populate('teacher_id course_id students._id').exec()
+        Class.find(course_id: course._id).populate('teacher_id students._id').exec()
           .then (classes) ->
             res.send
               course:  serializers.course(course)
-              classes: classes.map(serializers.classExpanded)
+              classes: classes.map (klass) ->
+                _.merge serializers.class(klass),
+                  students: klass.students.map(serializers.classStudent)
       .then null, controllersUtils.mongooseErr(res, next)
 
 simpleCrud(router, Course, 'courses', serializer, constructor)

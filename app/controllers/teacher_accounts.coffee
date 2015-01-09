@@ -5,13 +5,14 @@ _       = require('lodash')
 
 assertSupervisor = require('./concerns/middleware/authentication').assertSupervisor
 controllersUtils = require (config.get('paths.utils') + '/controllers')
-TeacherAccount   = require (config.get('paths.models') + '/teacher_account')
 simpleCrud       = require('./concerns/shared_controllers/simple_crud')
-coursable        = require('./concerns/shared_controllers/coursable')
 classable        = require('./concerns/shared_controllers/classable')
 validator        = require('./concerns/middleware/validators').teacherAccount
-Course           = require (config.get('paths.models') + '/course')
-Class            = require (config.get('paths.models') + '/class')
+
+
+TeacherAccount = require (config.get('paths.models') + '/teacher_account')
+Course         = require (config.get('paths.models') + '/course')
+Class          = require (config.get('paths.models') + '/class')
 
 constructor = require(config.get('paths.constructors')).teacherAccount
 serializers = require(config.get('paths.serializers'))
@@ -76,7 +77,6 @@ router
       teacher_id: req.params.teacherId
       'students._id': req.params.studentId
 
-
     Class.findOneAndUpdate(query, command)
       .exec()
       .then (klass) ->
@@ -94,10 +94,6 @@ router
 
   .put '/:id/remove_from_guides', assertSupervisor, addOrRemoveGuide(false)
   .put '/:id/add_to_guides', assertSupervisor, addOrRemoveGuide(true)
-
-coursable(router, TeacherAccount, 'teacher_account', serializer: serializer)
-  .write(assertSupervisor)
-  .read(assertSupervisor)
 
 classable(router, TeacherAccount, 'teacher_account', 'teacher_id', serializer: serializer)
   .write(assertSupervisor)

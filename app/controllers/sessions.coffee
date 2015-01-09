@@ -40,9 +40,7 @@ router
 
     AccessToken.findByIdAndRemove(req.params.id).exec()
       .then (tokenRecord) ->
-        if tokenRecord
-          res.clearCookie('accessToken')
-          res.status(200).end()
+        if tokenRecord then res.status(200).end()
         else controllersUtils.notFound(res)
       .then null, controllersUtils.mongooseErr(res, next)
 

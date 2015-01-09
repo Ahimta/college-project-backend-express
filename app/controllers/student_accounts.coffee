@@ -7,8 +7,6 @@ _       = require('lodash')
 assertSupervisor = require('./concerns/middleware/authentication').assertSupervisor
 controllersUtils = require (config.get('paths.utils') + '/controllers')
 simpleCrud       = require('./concerns/shared_controllers/simple_crud')
-coursable        = require('./concerns/shared_controllers/coursable')
-classable        = require('./concerns/shared_controllers/classable')
 validator        = require('./concerns/middleware/validators').studentAccount
 
 StudentAccount   = require (config.get('paths.models') + '/student_account')
@@ -21,6 +19,24 @@ serializer  = require(config.get('paths.serializers')).studentAccount
 
 module.exports = (app) ->
   app.use('/api/v0/student_accounts', router)
+
+addOrRemoveClass = (isAdd) -> (req, res, next) ->
+  StudentAccount.findById(req.params.id).exec()
+    .then (student) ->
+      return controllersUtils.notFound(res) unless student
+
+      classCommand = if isAdd then {$addToSet: {students: {_id: student._id}}}
+      else {$pull: {students: {_id: student._id}}}
+
+      Class.findByIdAndUpdate(req.params.classId, classCommand).exec()
+        .then (klass) ->
+          if klass
+            res.send
+              student_account: serializers.studentAccount(student)
+              class: serializers.class(klass)
+          else
+            controllersUtils.notFound(res)
+    .then null, controllersUtils.mongooseErr(res, next)
 
 router
   .get '/without_guide', assertSupervisor, (req, res, next) ->
@@ -41,7 +57,6 @@ router
                 guide: serializers.teacherAccount(guide)
             else
               controllersUtils.notFound(res)
-          .then null, controllersUtils.mongooseErr(res, next)
         .then null, controllersUtils.mongooseErr(res, next)
 
   .get '/:id/classes', (req, res, next) ->
@@ -49,7 +64,7 @@ router
       .then (student) ->
         return controllersUtils.notFound(res) unless student
 
-        Class.find({'students._id': student._id}, {'students.$': 1, teacher_id: 1, course_id: 1, name: 1, type: 1, hours: 1, day: 1})
+        Class.find({'students._id': student._id})
           .populate('students._id teacher_id course_id')
           .exec()
           .then (current) ->
@@ -62,17 +77,13 @@ router
                     classes:
                       not_current: notCurrent.map(serializers.classExpanded)
                       current: current.map(serializers.classExpanded).map (klass) ->
-                        currentStudent = _.first(klass.students)
+                        currentStudent = _.find klass.students, (s) ->
+                          s.id == student._id.toString()
                         _.merge klass, _.pick(currentStudent, 'attendance', 'grades')
-          .then null, controllersUtils.mongooseErr(res, next)
       .then null, controllersUtils.mongooseErr(res, next)
 
-coursable(router, StudentAccount, 'student_account', serializer: serializer)
-  .write(assertSupervisor)
-  .read(assertSupervisor)
-
-classable(router, StudentAccount, 'student_account', 'students._id', serializer: serializer, isStudent: true)
-  .write(assertSupervisor)
+  .put '/:id/classes/:classId/remove', assertSupervisor, addOrRemoveClass(false)
+  .put '/:id/classes/:classId/add',    assertSupervisor, addOrRemoveClass(true)
 
 simpleCrud(router, StudentAccount, 'student_accounts', serializer, constructor)
   .destroy(assertSupervisor)

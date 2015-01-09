@@ -14,12 +14,12 @@ serializers      = require(config.get('paths.serializers'))
 module.exports = (app) ->
   app.use('/api/v0/guides', router)
 
-addOrRemoveStudent = (add) -> (req, res, next) ->
+addOrRemoveStudent = (isAdd) -> (req, res, next) ->
   studentId = req.params.studentId
   teacherId = req.params.id
 
-  studentCommand = if add then {guide_id: teacherId} else {$unset: {guide_id: true}}
-  studentQuery   = if add then {_id: studentId} else {_id: studentId, guide_id: teacherId}
+  studentCommand = if isAdd then {guide_id: teacherId} else {$unset: {guide_id: true}}
+  studentQuery   = if isAdd then {_id: studentId} else {_id: studentId, guide_id: teacherId}
 
   TeacherAccount.findOne(_id: teacherId, is_guide: true).exec()
     .then (guide) ->
@@ -73,13 +73,13 @@ router
                 student_account: serializers.studentAccount(student)
             else
               controllersUtils.notFound(res)
-          .then null, controllersUtils.mongooseErr(res, next)
       .then null, controllersUtils.mongooseErr(res, next)
 
   .get '/:guideId/students/:studentId/classes', (req, res, next) ->
     TeacherAccount.findOne(_id: req.params.guideId, is_guide: true).exec()
       .then (guide) ->
         return controllersUtils.notFound(res) unless guide
+
         StudentAccount.findById(req.params.studentId).exec()
           .then (student) ->
             return controllersUtils.notFound(res) unless student
@@ -91,41 +91,15 @@ router
                   student_account: serializers.studentAccount(student)
                   teacher_account: serializers.teacherAccount(guide)
                   classes: current: currentCourses.map (klass) ->
-                    serializedKlass = serializers.class _.omit(klass.toObject(), 'teacher_id', 'course_id', 'students')
+                    serializedKlass = serializers.class(klass)
                     studentData = _.find klass.students, (s) ->
                       s._id._id.toString() == student._id.toString()
                     studentInfo = _.pick(studentData, 'attendance', 'grades')
 
                     _.merge serializedKlass, studentInfo,
-                      teacher_id: klass.populated('teacher_id')
-                      course_id:  klass.populated('course_id')
-                      students_ids: klass.populated('students._id')
                       teacher: serializers.teacherAccount(klass.teacher_id)
                       course:  serializers.course(klass.course_id)
-              .then null, controllersUtils.mongooseErr(res, next)
-          .then null, controllersUtils.mongooseErr(res, next)
       .then null, controllersUtils.mongooseErr(res, next)
 
-  .get '/:guideId/students/:studentId/courses', (req, res, next) ->
-    TeacherAccount.findOne(_id: req.params.guideId, is_guide: true).exec()
-      .then (teacher) ->
-        return controllersUtils.notFound(res) unless teacher
-        StudentAccount.findById(req.params.studentId).exec()
-          .then (student) ->
-            return controllersUtils.notFound(res) unless student
-            Course.find({_id: {$in: student.courses_ids}}).exec()
-              .then (currentCourses) ->
-                Course.find(_id: {$nin: student.courses_ids}).exec()
-                  .then (nonCurrentCourses) ->
-                    res.send
-                      student_account: serializers.studentAccount(student)
-                      teacher_account: serializers.teacherAccount(teacher)
-                      courses:
-                        not_current: nonCurrentCourses.map(serializers.course)
-                        current: currentCourses.map(serializers.course)
-              .then null, controllersUtils.mongooseErr(res, next)
-          .then null, controllersUtils.mongooseErr(res, next)
-      .then null, controllersUtils.mongooseErr(res, next)
-
-  .put '/:id/students/:studentId/remove', addOrRemoveStudent(false)
-  .put '/:id/students/:studentId/add', addOrRemoveStudent(true)
+  .put '/:id/students/:studentId/remove', assertSupervisor, addOrRemoveStudent(false)
+  .put '/:id/students/:studentId/add', assertSupervisor,    addOrRemoveStudent(true)
