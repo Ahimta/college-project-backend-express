@@ -29,9 +29,7 @@ router
           .then (classes) ->
             res.send
               course:  serializers.course(course)
-              classes: classes.map (klass) ->
-                _.merge serializers.class(klass),
-                  students: klass.students.map(serializers.classStudent)
+              classes: classes.map(serializers.classExpanded)
       .then null, controllersUtils.mongooseErr(res, next)
 
 simpleCrud(router, Course, 'courses', serializer, constructor)

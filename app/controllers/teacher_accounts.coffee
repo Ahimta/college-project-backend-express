@@ -6,9 +6,7 @@ _       = require('lodash')
 assertSupervisor = require('./concerns/middleware/authentication').assertSupervisor
 controllersUtils = require (config.get('paths.utils') + '/controllers')
 simpleCrud       = require('./concerns/shared_controllers/simple_crud')
-classable        = require('./concerns/shared_controllers/classable')
 validator        = require('./concerns/middleware/validators').teacherAccount
-
 
 TeacherAccount = require (config.get('paths.models') + '/teacher_account')
 Course         = require (config.get('paths.models') + '/course')
@@ -16,7 +14,6 @@ Class          = require (config.get('paths.models') + '/class')
 
 constructor = require(config.get('paths.constructors')).teacherAccount
 serializers = require(config.get('paths.serializers'))
-serializer  = require(config.get('paths.serializers')).teacherAccount
 
 module.exports = (app) ->
   app.use('/api/v0/teacher_accounts', router)
@@ -24,16 +21,54 @@ module.exports = (app) ->
 addOrRemoveGuide = (isAdd) -> (req, res, next) ->
   TeacherAccount.findByIdAndUpdate(req.params.id, {is_guide: isAdd}).exec()
     .then (teacher) ->
-      if teacher then res.send(teacher_account: serializer(teacher))
+      if teacher then res.send(teacher_account: serializers.teacherAccount(teacher))
       else controllersUtils.notFound(res)
     .then null, controllersUtils.mongooseErr(res, next)
 
+addOrRemoveClass = (isAdd) -> (req, res, next) ->
+  TeacherAccount.findById(req.params.id).exec()
+    .then (teacher) ->
+      return controllersUtils.notFound(res) unless teacher
+
+      command = if isAdd then {teacher_id: teacher._id} else {$unset: {teacher_id: true}}
+      Class.findByIdAndUpdate(req.params.classId, command).exec()
+        .then (klass) ->
+          return controllersUtils.notFound(res) unless klass
+          res.send
+            teacher_account: serializers.teacherAccount(teacher)
+            class:           serializers.class(klass)
+    .then null, controllersUtils.mongooseErr(res, next)
+
 router
+  .put '/:id/remove_from_guides', assertSupervisor, addOrRemoveGuide(false)
+  .put '/:id/add_to_guides',      assertSupervisor, addOrRemoveGuide(true)
+
+  .put '/:id/classes/:classId/remove', assertSupervisor, addOrRemoveClass(false)
+  .put '/:id/classes/:classId/add',    assertSupervisor, addOrRemoveClass(true)
+
   .get '/not_guides', assertSupervisor, (req, res, next) ->
     TeacherAccount.find({is_guide: false}).exec()
       .then (teachers) ->
         res.send
-          teacher_accounts: teachers.map(serializer)
+          teacher_accounts: teachers.map(serializers.teacherAccount)
+      .then null, controllersUtils.mongooseErr(res, next)
+
+  .get '/:id/classes', (req, res, next) ->
+    TeacherAccount.findById(req.params.id).exec()
+      .then (teacher) ->
+        Class.find({teacher_id: teacher._id})
+          .populate('students._id teacher_id course_id')
+          .exec()
+          .then (currentClasses) ->
+            Class.find({teacher_id: {$ne: teacher._id}})
+              .populate('students._id teacher_id course_id')
+              .exec()
+              .then (notCurrentClasses) ->
+                res.send
+                  teacher_account: serializers.teacherAccount(teacher)
+                  classes:
+                    not_current: notCurrentClasses.map(serializers.classExpanded)
+                    current:     currentClasses.map(serializers.classExpanded)
       .then null, controllersUtils.mongooseErr(res, next)
 
   .get '/:id/classes/:classId', (req, res, next) ->
@@ -44,26 +79,13 @@ router
           .populate('students._id course_id')
           .exec()
           .then (klass) ->
-            res.send
-              teacher_account: serializers.teacherAccount(teacher)
-              course: serializers.course(klass.course_id)
-              class:  serializers.class(klass)
-              students: klass.students.map (student) ->
-                studentAccount = serializers.studentAccount(student._id)
-                studentInfo    = _.pick(student, 'attendance', 'grades')
-                _.merge studentAccount, studentInfo
-      .then null, controllersUtils.mongooseErr(res, next)
-
-  .put '/:id/classes/:classId/remove', assertSupervisor, (req, res, next) ->
-    TeacherAccount.findById(req.params.id).exec()
-      .then (teacher) ->
-        return controllersUtils.notFound(res) unless teacher
-        Class.findByIdAndUpdate(req.params.classId, {$unset: {teacher_id: teacher.id}}).exec()
-          .then (klass) ->
-            return controllersUtils.notFound(res) unless klass
-            res.send
-              teacher_account: serializers.teacherAccount(teacher)
-              class:           serializers.class(klass)
+            if klass then controllersUtils.notFound(res)
+            else
+              res.send
+                teacher_account: serializers.teacherAccount(teacher)
+                students:        klass.students.map(serializers.classStudent)
+                course:          serializers.course(klass.course_id)
+                class:           serializers.class(klass)
       .then null, controllersUtils.mongooseErr(res, next)
 
   .put '/:teacherId/classes/:classId/students/:studentId', (req, res, next) ->
@@ -92,14 +114,7 @@ router
           res.status(200).end()
       .then null, controllersUtils.mongooseErr(res)
 
-  .put '/:id/remove_from_guides', assertSupervisor, addOrRemoveGuide(false)
-  .put '/:id/add_to_guides', assertSupervisor, addOrRemoveGuide(true)
-
-classable(router, TeacherAccount, 'teacher_account', 'teacher_id', serializer: serializer)
-  .write(assertSupervisor)
-  .read()
-
-simpleCrud(router, TeacherAccount, 'teacher_accounts', serializer, constructor)
+simpleCrud(router, TeacherAccount, 'teacher_accounts', serializers.teacherAccount, constructor)
   .destroy(assertSupervisor)
   .create([assertSupervisor, validator])
   .update([assertSupervisor, validator])
