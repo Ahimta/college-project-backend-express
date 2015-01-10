@@ -15,7 +15,6 @@ Class   = require (config.get('paths.models') + '/class')
 
 constructor = require(config.get('paths.constructors')).class
 serializers = require(config.get('paths.serializers'))
-serializer  = require(config.get('paths.serializers')).class
 
 module.exports = (app) ->
   app.use('/api/v0/classes', router)
@@ -80,7 +79,7 @@ router
                 current:     currentStudents.map(serializers.classStudent)
       .then null, controllersUtils.mongooseErr(res, next)
 
-simpleCrud(router, Class, 'classes', serializer, constructor)
+simpleCrud(router, Class, 'classes', serializers.class, constructor)
   .destroy(assertSupervisor)
   .create([assertSupervisor, validator])
   .update([assertSupervisor, validator])
