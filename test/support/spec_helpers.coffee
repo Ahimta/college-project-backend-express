@@ -30,7 +30,7 @@ module.exports =
         constructors.account(account)
       .then (persistableAccount) ->
         model.create(persistableAccount)
-      .fail logger.error
+      .fail logger.error.bind(null, 'spec_helpers.createAccount')
 
   swapCase: (string) ->
     _.chain(string)
