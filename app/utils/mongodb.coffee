@@ -3,9 +3,8 @@ config   = require('config')
 _        = require('lodash')
 Q        = require('q')
 
-security = require('./security')
-
 AccessToken = require(config.get('paths.models') + '/access_token')
+security    = require('./security')
 
 ACCOUNTS_MODELS =
   supervisor: require(config.get('paths.models') + '/supervisor_account')
@@ -14,10 +13,9 @@ ACCOUNTS_MODELS =
   teacher:    require(config.get('paths.models') + '/teacher_account')
   admin:      require(config.get('paths.models') + '/admin_account')
 
-
 modelForRole = module.exports.modelForRole = (role) ->
   Q.Promise (resolve, reject, notify) ->
-    model    = ACCOUNTS_MODELS[role]
+    model = ACCOUNTS_MODELS[role]
 
     if model then resolve(model)
     else reject new Error('Model not found for role ' + role)
@@ -36,42 +34,30 @@ authenticate = (role, username, password) ->
         throw new Error("user with username: '#{username}' not found")
 
 
-module.exports.assertAccessToken = (accessToken, role=null) ->
+module.exports.assertAccessToken = (accessToken, role=null, userId=null) ->
   query           = {access_token: accessToken}
-  query.user_role = role if role
+  query.user_role = role   if role
+  query.user_id   = userId if userId
 
-  Q(AccessToken.findOne(query).exec())
-    .then (tokenRecord) ->
-      if tokenRecord
-        modelForRole(tokenRecord.user_role).then (model) ->
-          {tokenRecord: tokenRecord, accountModel: model}
-      else
-        throw new Error('Access token not found')
-    .then (result) ->
-      result.accountModel.findOne({_id: result.tokenRecord.user_id}).exec().then (accountRecord) ->
-        tokenObject: result.tokenRecord.toObject()
-        account: accountRecord.toObject()
+  Q(AccessToken.findOne(query).exec()).then (tokenRecord) ->
+    throw new Error('Access token not found') unless tokenRecord
+
+    modelForRole(tokenRecord.user_role).then (accountModel) ->
+      accountModel.findOne({_id: tokenRecord.user_id}).exec().then (accountRecord) ->
+        tokenObject: tokenRecord.toObject()
+        account:     accountRecord.toObject()
 
 
 module.exports.login = (role, username, password) ->
 
-  authenticate(role, username, password)
-    .then (account) ->
-      security.generateSecureToken()
-        .then (token) ->
-          {account: account, token: token}
-      .then (result) ->
-        record =
-          access_token: result.token
-          user_role: role
-          user_id: result.account._id
+  authenticate(role, username, password).then (account) ->
+    security.generateSecureToken().then (token) ->
+      record =
+        access_token: token
+        user_role:    role
+        user_id:      account._id
 
-        AccessToken.create(record)
-          .then (tokenRecord) ->
-            tokenRecord: tokenRecord
-            account: result.account
-      .then (result) ->
-
-        accessToken: result.tokenRecord.access_token
-        account: result.account
+      AccessToken.create(record).then (tokenRecord) ->
+        accessToken: tokenRecord.access_token
         accountRole: role
+        account:     account

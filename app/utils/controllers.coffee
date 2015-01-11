@@ -33,6 +33,6 @@ module.exports =
           else next(err)
       else
         switch err.name
-          when 'CastError' then module.exports.notFound(res)
+          when 'CastError'       then module.exports.notFound(res)
           when 'ValidationError' then res.status(400).end()
           else next(err)
