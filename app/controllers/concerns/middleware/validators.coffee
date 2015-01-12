@@ -40,10 +40,19 @@ exports.jobRequest = makeValidator form(
 exports.class = makeValidator form(
   field('class.teacher_id').required().notEmpty(),
   field('class.course_id').required().notEmpty(),
-  field('class.hours').required().isInt().notEmpty(),
-  field('class.type').required().notEmpty(),
-  field('class.name').required().notEmpty(),
-  field('class.day').required().notEmpty())
+  field('class.code').required().notEmpty().isInt(),
+
+  field('class.hours').isInt().ifNull(2),
+  field('class.room'),
+  field('class.type').ifNull('محاضرة'),
+  field('class.name'),
+  field('class.day').ifNull('الإثنين'),
+
+  field('class.semester.order').isInt().ifNull(1),
+  field('class.semester.year').ifNull('1436/1437'),
+
+  field('class.schedule.from').isInt().ifNull(16),
+  field('class.schedule.to').isInt().ifNull(18))
 
 exports.course = makeValidator form(
   field('course.name').required().notEmpty(),

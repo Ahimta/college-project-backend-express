@@ -8,10 +8,7 @@ module.exports =
       errorKeys: [
         'class.teacher_id'
         'class.course_id'
-        'class.hours'
-        'class.type'
-        'class.name'
-        'class.day'
+        'class.code'
       ]
       form:
         class:
@@ -20,10 +17,7 @@ module.exports =
     {
       errorKeys: [
         'class.teacher_id'
-        'class.hours'
-        'class.type'
-        'class.name'
-        'class.day'
+        'class.code'
       ]
       form:
         class:
@@ -32,10 +26,7 @@ module.exports =
     {
       errorKeys: [
         'class.course_id'
-        'class.hours'
-        'class.type'
-        'class.name'
-        'class.day'
+        'class.code'
       ]
       form:
         class:
@@ -48,16 +39,36 @@ module.exports =
         class:
           teacher_id: '549228e16280ba621824adee'
           course_id:  '549228e16280ba621824adea'
-          hours:      2
-          type:       'x'
-          name:       'Class X'
-          day:        'y'
+          code:       93
+
+          hours: 2
+          room:  'r'
+          type:  'x'
+          name:  'Class X'
+          day:   'y'
+
+          schedule:
+            from: 4
+            to:   6
+          semester:
+            order: 1
+            year:  '1436/1437'
       res:
         teacher_id: '549228e16280ba621824adee'
         course_id:  '549228e16280ba621824adea'
-        hours:      2
-        type:       'x'
-        name:       'Class X'
-        day:        'y'
+        code:       93
+
+        hours: 2
+        room:  'r'
+        type:  'x'
+        name:  'Class X'
+        day:   'y'
+
+        schedule:
+          from: 4
+          to:   6
+        semester:
+          order: 1
+          year:  '1436/1437'
     }
   ]

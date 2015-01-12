@@ -1,46 +1,37 @@
 mongoose = require('mongoose')
 
 schema = new mongoose.Schema
-  name:
-    required: true
-    unique: true
-    type: String
-  hours:
-    default: 2
-    type: Number
-  type:
-    default: 'محاضرة'
-    type: String
-  day:
-    default: 'الإثنين'
-    type: String
+  hours: {default: 2, type: Number}
+  code:  {required: true, unique: true, type: Number}
+  name:  String
+  room:  String
+  type:  {default: 'محاضرة',  type: String}
+  day:   {default: 'الإثنين', type: String}
+  semester:
+    order: {default: 1, type: Number}
+    year:  {default: '1436/1437', type: String}
+  schedule:
+    from: {default: 16, type: Number}
+    to:   {default: 18, type: Number}
   teacher_id:
-    type: mongoose.Schema.Types.ObjectId
-    index: true
-    ref: 'TeacherAccount'
     required: true
+    index:    true
+    type:     mongoose.Schema.Types.ObjectId
+    ref:      'TeacherAccount'
   course_id:
-    type: mongoose.Schema.Types.ObjectId
-    index: true
-    ref: 'Course'
     required: true
+    index:    true
+    type:     mongoose.Schema.Types.ObjectId
+    ref:      'Course'
   students:
     type: [
-      _id:
-        type: mongoose.Schema.Types.ObjectId
-        ref: 'StudentAccount'
-      attendance:
-        default: 100
-        type: Number
+      _id:        {type: mongoose.Schema.Types.ObjectId, ref: 'StudentAccount'}
+      attendance: {default: 100, type: Number}
       grades:
-        midterm:
-          default: 0
-          type: Number
-        final:
-          default: 0
-          type: Number
+        midterm: {default: 0, type: Number}
+        final:   {default: 0, type: Number}
     ]
-    index: true
     default: []
+    index: true
 
 module.exports = mongoose.model('Class', schema)
