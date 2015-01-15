@@ -79,13 +79,14 @@ router
           .populate('students._id course_id')
           .exec()
           .then (klass) ->
-            if klass then controllersUtils.notFound(res)
-            else
+            if klass
               res.send
                 teacher_account: serializers.teacherAccount(teacher)
                 students:        klass.students.map(serializers.classStudent)
                 course:          serializers.course(klass.course_id)
                 class:           serializers.class(klass)
+            else
+              controllersUtils.notFound(res)
       .then null, controllersUtils.mongooseErr(res, next)
 
   .put '/:teacherId/classes/:classId/students/:studentId', (req, res, next) ->
