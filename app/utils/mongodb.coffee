@@ -1,5 +1,6 @@
 mongoose = require('mongoose')
 config   = require('config')
+logger   = require config.get('paths.logger')
 _        = require('lodash')
 Q        = require('q')
 
@@ -34,7 +35,7 @@ authenticate = (role, username, password) ->
         throw new Error("user with username: '#{username}' not found")
 
 
-module.exports.assertAccessToken = (accessToken, role=null, userId=null) ->
+exports.assertAccessToken = (accessToken, role=null, userId=null) ->
   query           = {access_token: accessToken}
   query.user_role = role   if role
   query.user_id   = userId if userId
@@ -47,8 +48,28 @@ module.exports.assertAccessToken = (accessToken, role=null, userId=null) ->
         tokenObject: tokenRecord.toObject()
         account:     accountRecord.toObject()
 
+###*
+ * Ensures the user is authorized according to the given credentials
+ * @export
+ * @param   {Array.<{accountRole: string, accountId: ?string}>} [credentials=[]]
+ * @param   {string} accessToken
+ * @returns {Promise}
+ ###
+exports.assertAuthorized = _.curry (credentials=[], accessToken) ->
+  query0 = {access_token: accessToken}
+  query1 = credentials.map (credential) ->
+    user_role: credential.accountRole
+    user_id:   credential.accountId
+  query = {$and: [query0, {$or: query1}]}
 
-module.exports.login = (role, username, password) ->
+  AccessToken.findOne(query).exec().then (tokenRecord) ->
+    if tokenRecord
+      accountRole: tokenRecord.user_role
+      accoundId:   tokenRecord.user_id
+    else
+      throw new Error('Access token not found')
+
+exports.login = (role, username, password) ->
 
   authenticate(role, username, password).then (account) ->
     security.generateSecureToken().then (token) ->

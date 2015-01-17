@@ -4,10 +4,11 @@ logger  = require config.get('paths.logger')
 router  = express.Router()
 _       = require('lodash')
 
-assertSupervisor = require('./concerns/middleware/authentication').assertSupervisor
-controllersUtils = require (config.get('paths.utils') + '/controllers')
-simpleCrud       = require('./concerns/shared_controllers/simple_crud')
-validator        = require('./concerns/middleware/validators').studentAccount
+assertAuthorized2 = require('./concerns/middleware/authentication').assertAuthorized2
+assertSupervisor  = require('./concerns/middleware/authentication').assertSupervisor
+controllersUtils  = require (config.get('paths.utils') + '/controllers')
+simpleCrud        = require('./concerns/shared_controllers/simple_crud')
+validator         = require('./concerns/middleware/validators').studentAccount
 
 StudentAccount   = require (config.get('paths.models') + '/student_account')
 TeacherAccount   = require (config.get('paths.models') + '/teacher_account')
@@ -45,7 +46,7 @@ router
         res.send(student_accounts: students.map(serializer))
       .then null, controllersUtils.mongooseErr(res, next)
 
-  .get '/:id/guide', assertSupervisor, (req, res, next) ->
+  .get '/:id/guide', assertAuthorized2([{accountRole: 'supervisor'}, {accountRole: 'student', accountIdParam: 'id'}]), (req, res, next) ->
     StudentAccount.findOne({_id: req.params.id, guide_id: {$exists: true}}).exec()
       .then (student) ->
         return controllersUtils.notFound(res) unless student

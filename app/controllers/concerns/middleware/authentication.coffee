@@ -21,10 +21,29 @@ assertAuthorizedMiddleware = (role=null, userId=null) -> (req, res, next) ->
       controllersUtils.unauthorized(res)
       logger.error(err, role: role)
 
-module.exports.assertAuthorized = assertAuthorizedMiddleware()
+###*
+ * @param {Array.<{accountRole: string, accountIdParam: ?string}>} [reqCredentials=[]]
+ * @returns Express middleware
+ ###
+exports.assertAuthorized2 = (reqCredentials=[]) -> (req, res, next) ->
 
-module.exports.assertSupervisor = assertAuthorizedMiddleware('supervisor')
-module.exports.assertRecruiter  = assertAuthorizedMiddleware('recruiter')
-module.exports.assertStudent    = assertAuthorizedMiddleware('student')
-module.exports.assertTeacher    = assertAuthorizedMiddleware('teacher')
-module.exports.assertAdmin      = assertAuthorizedMiddleware('admin')
+  dbCredentials = reqCredentials.map (credential) ->
+    accountIdParam = credential.accountIdParam
+    accountRole: credential.accountRole
+    accountId:   req.params[accountIdParam] if accountIdParam
+
+  accessToken = req.get('X-Access-Token') || req.query.access_token
+  mongodbUtils.assertAuthorized(dbCredentials, accessToken)
+    .then (__) ->
+      next()
+    .then null, (err) ->
+      controllersUtils.unauthorized(res)
+      logger.error(err, [reqCredentials, dbCredentials])
+
+exports.assertAuthorized = assertAuthorizedMiddleware()
+
+exports.assertSupervisor = assertAuthorizedMiddleware('supervisor')
+exports.assertRecruiter  = assertAuthorizedMiddleware('recruiter')
+exports.assertStudent    = assertAuthorizedMiddleware('student')
+exports.assertTeacher    = assertAuthorizedMiddleware('teacher')
+exports.assertAdmin      = assertAuthorizedMiddleware('admin')
