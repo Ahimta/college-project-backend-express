@@ -197,7 +197,7 @@ module.exports = (app, resource, mongooseModel, samples, token=null, serializer=
     self()
 
   show: ->
-    describe "GET #{resource}", ->
+    describe "GET #{resource}/:id", ->
 
       before     -> hooks.createRecord(@)
       before     -> hooks.assignCount(@)

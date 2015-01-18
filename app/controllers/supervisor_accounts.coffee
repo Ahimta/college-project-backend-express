@@ -3,6 +3,7 @@ config  = require('config')
 router  = express.Router()
 
 SupervisorAccount = require (config.get('paths.models') + '/supervisor_account')
+assertAuthorized2 = require('./concerns/middleware/authentication').assertAuthorized2
 assertAdmin       = require('./concerns/middleware/authentication').assertAdmin
 simpleCrud        = require('./concerns/shared_controllers/simple_crud')
 validator         = require('./concerns/middleware/validators').supervisorAccount
@@ -18,4 +19,4 @@ simpleCrud(router, SupervisorAccount, 'supervisor_accounts', serializer, constru
   .create([assertAdmin, validator])
   .update([assertAdmin, validator])
   .index(assertAdmin)
-  .show(assertAdmin)
+  .show(assertAuthorized2([{accountRole: 'admin'}, {accountRole: 'supervisor', accountIdParam: 'id'}]))

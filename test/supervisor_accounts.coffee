@@ -38,9 +38,9 @@ describe resource, ->
 
       samples =
         supervisor: SupervisorAccount
-        recruiter: RecruiterAccount
-        student: StudentAccount
-        teacher: TeacherAccount
+        recruiter:  RecruiterAccount
+        student:    StudentAccount
+        teacher:    TeacherAccount
 
       _.forEach samples, (model, role) ->
 

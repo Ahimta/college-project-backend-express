@@ -29,8 +29,9 @@ exports.assertAuthorized2 = (reqCredentials=[]) -> (req, res, next) ->
 
   dbCredentials = reqCredentials.map (credential) ->
     accountIdParam = credential.accountIdParam
-    accountRole: credential.accountRole
-    accountId:   req.params[accountIdParam] if accountIdParam
+    q = {accountRole: credential.accountRole}
+    q.accountId = req.params[accountIdParam] if accountIdParam
+    q
 
   accessToken = req.get('X-Access-Token') || req.query.access_token
   mongodbUtils.assertAuthorized(dbCredentials, accessToken)
@@ -38,12 +39,13 @@ exports.assertAuthorized2 = (reqCredentials=[]) -> (req, res, next) ->
       next()
     .then null, (err) ->
       controllersUtils.unauthorized(res)
+
       logger.error(err, [reqCredentials, dbCredentials])
 
 exports.assertAuthorized = assertAuthorizedMiddleware()
 
-exports.assertSupervisor = assertAuthorizedMiddleware('supervisor')
-exports.assertRecruiter  = assertAuthorizedMiddleware('recruiter')
-exports.assertStudent    = assertAuthorizedMiddleware('student')
-exports.assertTeacher    = assertAuthorizedMiddleware('teacher')
-exports.assertAdmin      = assertAuthorizedMiddleware('admin')
+exports.assertSupervisor = exports.assertAuthorized2([{accountRole: 'supervisor'}])
+exports.assertRecruiter  = exports.assertAuthorized2([{accountRole: 'recruiter'}])
+exports.assertStudent    = exports.assertAuthorized2([{accountRole: 'student'}])
+exports.assertTeacher    = exports.assertAuthorized2([{accountRole: 'teacher'}])
+exports.assertAdmin      = exports.assertAuthorized2([{accountRole: 'admin'}])
