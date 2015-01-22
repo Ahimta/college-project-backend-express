@@ -64,6 +64,7 @@ exports.studentAccount    = makeAccountable 'student_account',
   [
     field('student_account.collegial_number')
     field('student_account.specialization')
+    field('student_account.guide_id')
   ]
 exports.teacherAccount    = makeAccountable 'teacher_account',
   [
