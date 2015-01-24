@@ -83,8 +83,12 @@ router
                         _.merge klass, _.pick(currentStudent, 'attendance', 'grades')
       .then null, controllersUtils.mongooseErr(res, next)
 
-  .put '/:id/classes/:classId/remove', assertSupervisor, addOrRemoveClass(false)
-  .put '/:id/classes/:classId/add',    assertSupervisor, addOrRemoveClass(true)
+  .put('/:id/classes/:classId/remove',
+    assertAuthorized2([{accountRole: 'supervisor'}, {accountRole: 'student', accountIdParam: 'id'}]),
+    addOrRemoveClass(false))
+  .put('/:id/classes/:classId/add',
+    assertAuthorized2([{accountRole: 'supervisor'}, {accountRole: 'student', accountIdParam: 'id'}]),
+    addOrRemoveClass(true))
 
 simpleCrud(router, StudentAccount, 'student_accounts', serializer, constructor)
   .destroy(assertSupervisor)
