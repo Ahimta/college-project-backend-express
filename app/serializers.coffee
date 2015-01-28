@@ -10,13 +10,18 @@ accountSerializer = (account) ->
   _.omit(baseSerializer(account), 'password')
 
 getId = (objectOrId) ->
-  if typeof objectOrId == 'string'
-    objectOrId
+  if typeof objectOrId == 'string' then objectOrId
   else objectOrId?._id?.toString() || objectOrId.toString()
 
 supervisorAccount = accountSerializer
 recruiterAccount  = accountSerializer
-studentAccount    = accountSerializer
+studentAccount    = (student) ->
+  if student.guide_id
+    _.merge accountSerializer(student),
+      guide_id: getId(student.guide_id)
+  else
+    accountSerializer(student)
+
 teacherAccount    = accountSerializer
 adminAccount      = accountSerializer
 jobRequest        = baseSerializer

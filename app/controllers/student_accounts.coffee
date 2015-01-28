@@ -40,6 +40,24 @@ addOrRemoveClass = (isAdd) -> (req, res, next) ->
     .then null, controllersUtils.mongooseErr(res, next)
 
 router
+  .get '/', assertSupervisor, (req, res, next) ->
+    if req.query.expand
+      StudentAccount.find().populate('guide_id').exec()
+        .then (students) ->
+          if students
+            res.send
+              student_accounts: students.map (student) ->
+                if student.guide_id
+                  _.merge serializers.studentAccount(student),
+                    guide: serializers.teacherAccount(student.guide_id)
+                else
+                  serializers.studentAccount(student)
+          else
+            controllersUtils.notFound(res)
+        .then null, controllersUtils.mongooseErr(res, next)
+    else
+      next()
+
   .get '/without_guide', assertSupervisor, (req, res, next) ->
     StudentAccount.find(guide_id: {$exists: false}).exec()
       .then (students) ->
