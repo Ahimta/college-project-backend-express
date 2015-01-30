@@ -24,6 +24,17 @@ studentAccount    = (student) ->
 
 teacherAccount    = accountSerializer
 adminAccount      = accountSerializer
+studentAlert      = (alert) ->
+  _.merge baseSerializer(alert),
+    student_id: getId(alert.student_id)
+    teacher_id: getId(alert.teacher_id)
+
+studentAlertExpanded = (alert) ->
+  _.merge baseSerializer(alert),
+    student_id: alert.student_id._id.toString()
+    teacher_id: alert.teacher_id._id.toString()
+    student:    studentAccount(alert.student_id)
+    teacher:    teacherAccount(alert.teacher_id)
 jobRequest        = baseSerializer
 account           = accountSerializer
 course            = baseSerializer
@@ -50,6 +61,8 @@ module.exports =
   studentAccount: studentAccount
   teacherAccount: teacherAccount
   adminAccount: adminAccount
+  studentAlertExpanded: studentAlertExpanded
+  studentAlert: studentAlert
   jobRequest: jobRequest
   account: accountSerializer
   course: course

@@ -75,7 +75,7 @@ router
     TeacherAccount.findById(req.params.id).exec()
       .then (teacher) ->
         return controllersUtils.notFound(res) unless teacher
-        Class.findById(req.params.classId)
+        Class.findOne({_id: req.params.classId, teacher_id: req.params.id})
           .populate('students._id course_id')
           .exec()
           .then (klass) ->
