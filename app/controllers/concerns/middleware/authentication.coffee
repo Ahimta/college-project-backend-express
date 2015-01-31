@@ -35,7 +35,9 @@ exports.assertAuthorized2 = (reqCredentials=[]) -> (req, res, next) ->
 
   accessToken = req.get('X-Access-Token') || req.query.access_token
   mongodbUtils.assertAuthorized(dbCredentials, accessToken)
-    .then (__) ->
+    .then (result) ->
+      res.locals.accountRole = result.accountRole
+      res.locals.accountId   = result.accountId
       next()
     .then null, (err) ->
       controllersUtils.unauthorized(res)

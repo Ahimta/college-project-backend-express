@@ -77,3 +77,7 @@ exports.session = makeValidator form(
   field('username').required().notEmpty(),
   field('password').required().notEmpty(),
   field('role').required().notEmpty())
+
+exports.studentAlert = makeValidator form(
+  field('student_alert.title').required().notEmpty(),
+  field('student_alert.body').required().notEmpty())
