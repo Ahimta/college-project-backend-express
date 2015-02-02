@@ -78,12 +78,12 @@ exports.assertAuthorized = _.curry (credentials=[], accessToken) ->
     q =  {user_role: credential.accountRole}
     q.user_id = accountId if accountId
     q
-  query = {$and: [query0, {$or: query1}]}
+  query = if _.isEmpty(query1) then query0 else {$and: [query0, {$or: query1}]}
 
   AccessToken.findOne(query).exec().then (tokenRecord) ->
     if tokenRecord
       accountRole: tokenRecord.user_role
-      accoundId:   tokenRecord.user_id
+      accountId:   tokenRecord.user_id
     else
       throw new Error('Access token not found')
 

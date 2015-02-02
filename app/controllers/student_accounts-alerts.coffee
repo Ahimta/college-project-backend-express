@@ -16,17 +16,17 @@ TeacherAccount = require (config.get('paths.models') + '/teacher_account')
 StudentAlert   = require (config.get('paths.models') + '/student_alert')
 
 module.exports = (app) ->
-  app.use('/api/v0/student_accounts/:studentId/alerts', router)
+  app.use('/api/v0/student_accounts', router)
 
 router
-  .get '/', assertAccessToken, (req, res, next) ->
+  .get '/:studentId/alerts', assertAccessToken, (req, res, next) ->
 
     StudentAccount.findById(req.params.studentId).exec()
       .then (student) ->
 
         return controllersUtils.notFound(res) unless student
 
-        TeacherAccount.findOne({_id: student.teacher_id, is_guide: true}).exec().then (teacher) ->
+        TeacherAccount.findOne({_id: student.guide_id, is_guide: true}).exec().then (teacher) ->
 
           StudentAlert.find({student_id: student._id})
             .populate('student_id teacher_id')
@@ -34,9 +34,10 @@ router
             .then (alerts) ->
 
               {accountRole, accountId} = res.locals
-              isAuthorizedStudent = accountRole == 'student' and accountId == student.id
-              isAuthorizedTeacher = teacher and accountRole == 'teacher' and accountId == teacher.id
+              isAuthorizedStudent = accountRole == 'student' and accountId == student._id
+              isAuthorizedTeacher = teacher and accountRole == 'teacher' and _.isEqual(accountId, teacher._id)
               isSupervisor        = accountRole == 'supervisor'
+              console.log(teacher._id, accountId)
 
               if isAuthorizedStudent or isAuthorizedTeacher or isSupervisor
                 res.send
@@ -47,13 +48,13 @@ router
 
       .then null, controllersUtils.mongooseErr(res, next)
 
-  .get '/:id', assertAccessToken, (req, res, next) ->
+  .get '/:studentId/alerts/:id', assertAccessToken, (req, res, next) ->
 
     StudentAccount.findById(req.params.studentId).exec()
       .then (student) ->
         return controllersUtils.notFound(res) unless student
 
-        TeacherAccount.findOne({_id: student.teacher_id, is_guide: true}).exec().then (teacher) ->
+        TeacherAccount.findOne({_id: student.guide_id, is_guide: true}).exec().then (teacher) ->
 
           StudentAlert.findOne({_id: req.params.id, student_id: student._id})
             .populate('student_id teacher_id')
@@ -62,7 +63,7 @@ router
 
               {accountRole, accountId} = res.locals
               isAuthorizedStudent = accountRole == 'student' and accountId == student.id
-              isAuthorizedTeacher = teacher and accountRole == 'teacher' and accountId == teacher.id
+              isAuthorizedTeacher = teacher and accountRole == 'teacher' and _.isEqual(accountId, teacher._id)
               isSupervisor        = accountRole == 'supervisor'
 
               if isAuthorizedStudent or isAuthorizedTeacher or isSupervisor
@@ -74,17 +75,17 @@ router
 
       .then null, controllersUtils.mongooseErr(res, next)
 
-  .post '/', assertAccessToken, validator, (req, res, next) ->
+  .post '/:studentId/alerts/', assertAccessToken, validator, (req, res, next) ->
 
     StudentAccount.findById(req.params.studentId).exec()
       .then (student) ->
 
         return controllersUtils.notFound(res) unless student
 
-        TeacherAccount.findOne({_id: student.teacher_id, is_guide: true}).exec().then (teacher) ->
+        TeacherAccount.findOne({_id: student.guide_id, is_guide: true}).exec().then (teacher) ->
 
           {accountRole, accountId} = res.locals
-          isAuthorizedTeacher = teacher and accountRole == 'teacher' and accountId == teacher.id
+          isAuthorizedTeacher = teacher and accountRole == 'teacher' and _.isEqual(accountId, teacher._id)
 
           return controllersUtils.unauthorized(res) unless isAuthorizedTeacher
 
@@ -100,17 +101,17 @@ router
 
       .then null, controllersUtils.mongooseErr(res, next)
 
-  .put '/:id', assertAccessToken, validator, (req, res, next) ->
+  .put '/:studentId/alerts/:id', assertAccessToken, validator, (req, res, next) ->
 
     StudentAccount.findById(req.params.studentId).exec()
       .then (student) ->
 
         return controllersUtils.notFound(res) unless student
 
-        TeacherAccount.findOne({_id: student.teacher_id, is_guide: true}).exec().then (teacher) ->
+        TeacherAccount.findOne({_id: student.guide_id, is_guide: true}).exec().then (teacher) ->
 
           {accountRole, accountId} = res.locals
-          isAuthorizedTeacher = teacher and accountRole == 'teacher' and accountId == teacher.id
+          isAuthorizedTeacher = teacher and accountRole == 'teacher' and _.isEqual(accountId, teacher._id)
 
           return controllersUtils.unauthorized(res) unless isAuthorizedTeacher
 
@@ -126,17 +127,17 @@ router
 
       .then null, controllersUtils.mongooseErr(res, next)
 
-  .delete '/:id', assertAccessToken, (req, res, next) ->
+  .delete '/:studentId/alerts/:id', assertAccessToken, (req, res, next) ->
 
     StudentAccount.findById(req.params.studentId).exec()
       .then (student) ->
 
         return controllersUtils.notFound(res) unless student
 
-        TeacherAccount.findOne({_id: student.teacher_id, is_guide: true}).exec().then (teacher) ->
+        TeacherAccount.findOne({_id: student.guide_id, is_guide: true}).exec().then (teacher) ->
 
           {accountRole, accountId} = res.locals
-          isAuthorizedTeacher = teacher and accountRole == 'teacher' and accountId == teacher.id
+          isAuthorizedTeacher = teacher and accountRole == 'teacher' and _.isEqual(accountId, teacher._id)
 
           return controllersUtils.unauthorized(res) unless isAuthorizedTeacher
 

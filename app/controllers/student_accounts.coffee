@@ -102,31 +102,6 @@ router
                         _.merge klass, _.pick(currentStudent, 'attendance', 'grades')
       .then null, controllersUtils.mongooseErr(res, next)
 
-  .get '/:id/student_alerts', assertAuthorized2(), (req, res, next) ->
-    StudentAccount.findById(req.params.id).exec()
-      .then (student) ->
-
-        return controllersUtils.notFound(res) unless student
-
-        TeacherAccount.findOne({_id: student.teacher_id, is_guide: true}).exec().then (teacher) ->
-
-          StudentAlert.find({student_id: student._id}).populate('teacher_id').exec().then (alerts) ->
-
-            {accountRole, accountId} = res.locals
-            isAuthorizedStudent = accountRole == 'student' and accountId == student.id
-            isAuthorizedTeacher = teacher and accountRole == 'teacher' and accountId == teacher.id
-            isSupervisor        = accountRole == 'supervisor'
-
-            if isAuthorizedStudent or isAuthorizedTeacher or isSupervisor
-              res.send
-                student_account: serializers.studentAccount(student)
-                student_alerts: alerts.map (alert) ->
-                  _.merge serializers.studentAlert(alert),
-                    teacher_account: serializers.teacherAccount(alert.teacher_id)
-            else
-              controllersUtils.unauthorized(res)
-      .then null, controllersUtils.mongooseErr(res, next)
-
 
   .put('/:id/classes/:classId/remove',
     assertAuthorized2([{accountRole: 'supervisor'}, {accountRole: 'student', accountIdParam: 'id'}]),
