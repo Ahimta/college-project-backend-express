@@ -34,10 +34,9 @@ router
             .then (alerts) ->
 
               {accountRole, accountId} = res.locals
-              isAuthorizedStudent = accountRole == 'student' and accountId == student._id
+              isAuthorizedStudent = accountRole == 'student' and _.isEqual(accountId, student._id)
               isAuthorizedTeacher = teacher and accountRole == 'teacher' and _.isEqual(accountId, teacher._id)
               isSupervisor        = accountRole == 'supervisor'
-              console.log(teacher._id, accountId)
 
               if isAuthorizedStudent or isAuthorizedTeacher or isSupervisor
                 res.send
@@ -62,7 +61,7 @@ router
             .then (alert) ->
 
               {accountRole, accountId} = res.locals
-              isAuthorizedStudent = accountRole == 'student' and accountId == student.id
+              isAuthorizedStudent = accountRole == 'student' and _.isEqual(accountId, student._id)
               isAuthorizedTeacher = teacher and accountRole == 'teacher' and _.isEqual(accountId, teacher._id)
               isSupervisor        = accountRole == 'supervisor'
 
@@ -93,7 +92,7 @@ router
             student_id: student._id
             teacher_id: teacher._id
 
-          StudentAlert.create(attrs.toJS()).exec().then (alert) ->
+          StudentAlert.create(attrs.toJS()).then (alert) ->
             res.send
               student_account: serializers.studentAccount(student)
               teacher_account: serializers.teacherAccount(teacher)
