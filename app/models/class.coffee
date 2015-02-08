@@ -6,7 +6,7 @@ schema = new mongoose.Schema
   name:  String
   room:  String
   type:  {default: 'محاضرة',  type: String}
-  day:   {default: 'الإثنين', type: String}
+  day:   {default: 0, type: Number, min: 0, max: 4}
   semester:
     order: {default: 1, type: Number}
     year:  {default: '1436/1437', type: String}

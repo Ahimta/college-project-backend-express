@@ -45,7 +45,7 @@ module.exports =
           room:  'r'
           type:  'x'
           name:  'Class X'
-          day:   'y'
+          day:   0
 
           schedule:
             from: 4
@@ -62,7 +62,7 @@ module.exports =
         room:  'r'
         type:  'x'
         name:  'Class X'
-        day:   'y'
+        day:   0
 
         schedule:
           from: 4

@@ -46,7 +46,7 @@ exports.class = makeValidator form(
   field('class.room'),
   field('class.type').ifNull('محاضرة'),
   field('class.name'),
-  field('class.day').ifNull('الإثنين'),
+  field('class.day').isInt().toInt().ifNull(0),
 
   field('class.semester.order').isInt().ifNull(1),
   field('class.semester.year').ifNull('1436/1437'),
