@@ -34,7 +34,7 @@ router
       .populate('students._id teacher_id course_id')
       .exec()
       .then (klass) ->
-        if klass
+        if klass and klass.teacher_id and klass.course_id
           res.send
             students: klass.students.map(serializers.classStudent)
             teacher:  serializers.teacherAccount(klass.teacher_id)
