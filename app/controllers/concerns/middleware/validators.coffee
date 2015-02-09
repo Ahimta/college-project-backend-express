@@ -43,7 +43,7 @@ exports.class = makeValidator form(
   field('class.code').required().notEmpty().isInt(),
 
   field('class.hours').isInt().ifNull(2),
-  field('class.room'),
+  field('class.room').isInt().toInt(),
   field('class.type').ifNull('محاضرة'),
   field('class.name'),
   field('class.day').isInt().toInt().ifNull(0),

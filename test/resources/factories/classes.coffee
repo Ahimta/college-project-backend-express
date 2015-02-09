@@ -42,14 +42,14 @@ module.exports =
           code:       93
 
           hours: 2
-          room:  'r'
+          room:  1
           type:  'x'
           name:  'Class X'
           day:   0
 
           schedule:
-            from: 4
-            to:   6
+            from: 8
+            to:   10
           semester:
             order: 1
             year:  '1436/1437'
@@ -59,14 +59,14 @@ module.exports =
         code:       93
 
         hours: 2
-        room:  'r'
+        room:  1
         type:  'x'
         name:  'Class X'
         day:   0
 
         schedule:
-          from: 4
-          to:   6
+          from: 8
+          to:   10
         semester:
           order: 1
           year:  '1436/1437'

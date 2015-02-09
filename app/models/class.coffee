@@ -4,15 +4,15 @@ schema = new mongoose.Schema
   hours: {default: 2, type: Number}
   code:  {required: true, unique: true, type: Number}
   name:  String
-  room:  String
+  room:  Number
   type:  {default: 'محاضرة',  type: String}
   day:   {default: 0, type: Number, min: 0, max: 4}
   semester:
     order: {default: 1, type: Number}
     year:  {default: '1436/1437', type: String}
   schedule:
-    from: {default: 16, type: Number}
-    to:   {default: 18, type: Number}
+    from: {type: Number, default: 16, min: 8, max: 22}
+    to:   {type: Number, default: 18, min: 8, max: 22}
   teacher_id:
     required: true
     index:    true
@@ -26,12 +26,12 @@ schema = new mongoose.Schema
   students:
     type: [
       _id:        {type: mongoose.Schema.Types.ObjectId, ref: 'StudentAccount'}
-      attendance: {default: 100, type: Number}
+      attendance: {type: Number, default: 100}
       grades:
-        midterm: {default: 0, type: Number}
-        final:   {default: 0, type: Number}
+        midterm: {type: Number, default: 0}
+        final:   {type: Number, default: 0}
     ]
     default: []
-    index: true
+    index:   true
 
 module.exports = mongoose.model('Class', schema)

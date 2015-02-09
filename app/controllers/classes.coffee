@@ -71,7 +71,6 @@ router
 
         Student.find(_id: {$nin: studentsIds}).exec()
           .then (notCurrentStudents) ->
-            console.log klass
             res.send
               class: serializers.class(klass)
               students:

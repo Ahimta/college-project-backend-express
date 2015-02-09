@@ -10,14 +10,14 @@ schema = new mongoose.Schema
   token: {type: String, unique: true, required: false}
   files: [String]
   status:
-    enum: ['pending', 'accepted', 'rejected']
     default: 'pending'
-    type: String
+    enum:    ['pending', 'accepted', 'rejected']
+    type:    String
   highschool_location: {type: String, required: true}
-  highschool_name: {type: String, required: true}
-  current_location: {type: String, required: true}
-  university: {type: String, required: true}
-  id_num: {type: String, required: true}
-  job: {type: String, required: true}
+  current_location:    {type: String, required: true}
+  highschool_name:     {type: String, required: true}
+  university:          {type: String, required: true}
+  id_num:              {type: String, required: true}
+  job:                 {type: String, required: true}
 
 module.exports = mongoose.model('JobRequest', schema)

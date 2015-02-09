@@ -3,15 +3,15 @@ mongoose = require('mongoose')
 schema =
   access_token:
     required: true
-    type: String
-    unique: true
+    unique:   true
+    type:     String
   user_role:
-    enum: ['supervisor', 'recruiter', 'student', 'teacher', 'admin']
     required: true
-    type: String
+    enum:     ['supervisor', 'recruiter', 'student', 'teacher', 'admin']
+    type:     String
   user_id:
-    type: mongoose.Schema.Types.ObjectId
-    index: true
     required: true
+    type:     mongoose.Schema.Types.ObjectId
+    index:    true
 
 module.exports = mongoose.model('AccessToken', schema)

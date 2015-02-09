@@ -24,7 +24,7 @@ modelForRole = module.exports.modelForRole = (role) ->
     model = ACCOUNTS_MODELS[role]
 
     if model then resolve(model)
-    else reject new Error('Model not found for role ' + role)
+    else reject(new Error('Model not found for role ' + role))
 
 ###
  * @private
@@ -57,12 +57,21 @@ exports.assertAccessToken = (accessToken, role=null) ->
   query.user_role = role   if role
 
   Q(AccessToken.findOne(query).exec()).then (tokenRecord) ->
-    throw new Error('Access token not found') unless tokenRecord
 
-    modelForRole(tokenRecord.user_role).then (accountModel) ->
-      accountModel.findOne({_id: tokenRecord.user_id}).exec().then (accountRecord) ->
-        tokenObject: tokenRecord.toObject()
-        account:     accountRecord.toObject()
+    if tokenRecord
+
+      modelForRole(tokenRecord.user_role)
+        .then (accountModel) ->
+
+          accountModel.findOne({_id: tokenRecord.user_id}).exec()
+
+        .then (accountRecord) ->
+
+          tokenObject: tokenRecord.toObject()
+          account:     accountRecord.toObject()
+
+    else
+      throw new Error('Access token not found')
 
 ###*
  * Ensures the user is authorized according to the given credentials
@@ -81,6 +90,7 @@ exports.assertAuthorized = _.curry (credentials=[], accessToken) ->
   query = if _.isEmpty(query1) then query0 else {$and: [query0, {$or: query1}]}
 
   AccessToken.findOne(query).exec().then (tokenRecord) ->
+
     if tokenRecord
       accountRole: tokenRecord.user_role
       accountId:   tokenRecord.user_id
@@ -97,13 +107,19 @@ exports.assertAuthorized = _.curry (credentials=[], accessToken) ->
 exports.login = (role, username, password) ->
 
   authenticate(role, username, password).then (account) ->
-    security.generateSecureToken().then (token) ->
-      record =
-        access_token: token
-        user_role:    role
-        user_id:      account._id
 
-      AccessToken.create(record).then (tokenRecord) ->
+    security.generateSecureToken()
+      .then (token) ->
+
+        record =
+          access_token: token
+          user_role:    role
+          user_id:      account._id
+
+        AccessToken.create(record)
+
+      .then (tokenRecord) ->
+
         accessToken: tokenRecord.access_token
-        accountRole: role
+        accountRole: tokenRecord.user_role
         account:     account
