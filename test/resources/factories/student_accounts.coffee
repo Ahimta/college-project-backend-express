@@ -30,10 +30,16 @@ module.exports =
     {
       form:
         student_account:
-          username: 'username77'
-          password: 'password123'
+          collegial_number: 123
+          specialization:   's'
+          username:         'username77'
+          password:         'password123'
+          level:            6
       res:
-        username: 'username77'
-        password: 'password123'
+        collegial_number: 123
+        specialization:   's'
+        username:         'username77'
+        password:         'password123'
+        level:            6
     }
   ]

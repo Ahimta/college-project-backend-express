@@ -1,5 +1,6 @@
 express = require('express')
 config  = require('config')
+logger  = require(config.get('paths.logger'))
 router  = express.Router()
 _       = require('lodash')
 
@@ -91,9 +92,11 @@ router
 
   .put '/:teacherId/classes/:classId/students/:studentId', (req, res, next) ->
     command =
-      $pull:
-        students:
-          _id: req.params.studentId
+      'students.$':
+        _id: req.params.studentId
+        attendance: req.body.student?.attendance
+        grades:
+          req.body.student?.grades
 
     query =
       _id: req.params.classId
@@ -101,18 +104,13 @@ router
       'students._id': req.params.studentId
 
     Class.findOneAndUpdate(query, command)
+      .populate('teacher_id')
       .exec()
       .then (klass) ->
-        return controllersUtils.notFound(res) unless klass
-        command =
-          $addToSet:
-            students:
-              _id: req.params.studentId
-              attendance: req.body.student?.attendance
-              grades:
-                req.body.student?.grades
-        Class.findByIdAndUpdate(req.params.classId, command).exec().then (klass) ->
+        if klass and klass.teacher_id
           res.status(200).end()
+        else
+          controllersUtils.notFound(res)
       .then null, controllersUtils.mongooseErr(res)
 
 simpleCrud(router, TeacherAccount, 'teacher_accounts', serializers.teacherAccount, constructor)

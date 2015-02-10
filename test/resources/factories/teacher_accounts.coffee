@@ -1,9 +1,6 @@
 module.exports =
   blacklist: [
     'id'
-    'specialization'
-    'courses_ids'
-    'students_ids'
     'is_guide'
 
     'fullname'
@@ -32,10 +29,12 @@ module.exports =
     {
       form:
         teacher_account:
-          username: 'username77'
-          password: 'password123'
+          specialization: 's'
+          username:       'username77'
+          password:       'password123'
       res:
-        username: 'username77'
-        password: 'password123'
+        specialization: 's'
+        username:       'username77'
+        password:       'password123'
     }
   ]

@@ -1,3 +1,4 @@
+Immutable = require('immutable')
 supertest = require('supertest')
 config    = require('config')
 logger    = require config.get('paths.logger')

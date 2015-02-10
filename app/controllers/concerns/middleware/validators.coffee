@@ -46,7 +46,7 @@ exports.class = makeValidator form(
   field('class.room').isInt().toInt(),
   field('class.type').ifNull('محاضرة'),
   field('class.name'),
-  field('class.day').isInt().toInt().ifNull(0),
+  field('class.day').isInt().ifNull(0),
 
   field('class.semester.order').isInt().ifNull(1),
   field('class.semester.year').ifNull('1436/1437'),
@@ -62,9 +62,10 @@ exports.supervisorAccount = makeAccountable('supervisor_account')
 exports.recruiterAccount  = makeAccountable('recruiter_account')
 exports.studentAccount    = makeAccountable 'student_account',
   [
-    field('student_account.collegial_number')
+    field('student_account.collegial_number').isInt()
     field('student_account.specialization')
     field('student_account.guide_id')
+    field('student_account.level').isInt().ifNull(1)
   ]
 exports.teacherAccount    = makeAccountable 'teacher_account',
   [
