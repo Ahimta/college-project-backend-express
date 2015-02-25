@@ -5,7 +5,13 @@ helpers     = require('_helpers')
 _           = require('lodash')
 
 serializer = module.exports = (student) ->
-  _.merge(helpers.accountSerializer(student), {guide_id: student.guide_id?.toString()})
+
+  serialized = helpers.accountSerializer(student)
+
+  serialized.collegial_number = parseInt(student.collegial_number) if student.collegial_number
+  serialized.guide_id         = getId(student.guide_id)            if student.guide_id
+
+  serialized
 
 serializer.class = _.curry (student, klass) ->
   if klass

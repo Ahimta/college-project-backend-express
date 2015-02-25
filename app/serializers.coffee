@@ -16,11 +16,12 @@ getId = (objectOrId) ->
 supervisorAccount = accountSerializer
 recruiterAccount  = accountSerializer
 studentAccount    = (student) ->
-  if student.guide_id
-    _.merge accountSerializer(student),
-      guide_id: getId(student.guide_id)
-  else
-    accountSerializer(student)
+  serialized = accountSerializer(student)
+
+  serialized.collegial_number = parseInt(student.collegial_number) if student.collegial_number
+  serialized.guide_id         = getId(student.guide_id)            if student.guide_id
+
+  serialized
 
 teacherAccount    = accountSerializer
 adminAccount      = accountSerializer
@@ -35,7 +36,8 @@ studentAlertExpanded = (alert) ->
     teacher_id: alert.teacher_id._id.toString()
     student:    studentAccount(alert.student_id)
     teacher:    teacherAccount(alert.teacher_id)
-jobRequest        = baseSerializer
+jobRequest        = (request) ->
+  _.merge baseSerializer(request), {id_num: parseInt(request.id_num)}
 account           = accountSerializer
 course            = baseSerializer
 klass             = (klass) ->
